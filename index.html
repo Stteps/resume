@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang = "en">
+	<head>
+		<title>Stéphane Petiot - Interactive Resume</title>
+		<meta charset = "utf-8">
+		<meta name = "viewport" content = "width = device-width, user-scalable = no, minimum-scale = 1.0, maximum-scale = 1.0">
+		<link type = "text/css" rel = "stylesheet" href = "./files/CSS/main.css">
+		<link rel = "icon" href = "data:,">
+	</head>
+	<body>
+		<div id = "loader">
+			<div id = "load_symbol"></div>
+		</div>
+		<div id = "container" style = "position : absolute; z-index : 1;"></div>
+		<div id = 'languageButtons' style = "position : absolute; z-index : 2; display : none;">
+			<span id = 'langLabel'>LANGUE</span>&nbsp;:&emsp;
+			<span class = 'languageButton' id = 'frenchButton'>
+				<img class = 'languageFlags' src = './files/pictures/france.png'>&nbsp;<span id = 'frenchLabel'>Français</span>&emsp;
+			</span>
+			<span class = 'languageButton' id = 'englishButton'>
+				<img class = 'languageFlags' src = './files/pictures/uk.png'>&nbsp;<span id = 'englishLabel'>Anglais</span>
+			</span>
+		</div>
+		<div id = 'socialMediaButtons' style = "position : absolute; z-index : 2; display : none;">
+			<a href = 'https://www.linkedin.com/in/stephanepetiot/'>
+				<img class = 'socialMediaIcons' src = './files/pictures/linkedIn_logo.png'>
+			</a>
+			<a href = 'https://viadeo.journaldunet.com/p/stephane-petiot-6751312'>
+				<img class = 'socialMediaIcons' src = './files/pictures/viadeo_logo.png'>
+			</a>
+			<a href = 'https://my.indeed.com/p/stphanep-q2khg7a'>
+				<img class = 'socialMediaIcons' src = './files/pictures/indeed_logo.png'>
+			</a>
+		</div>
+		<div id = 'techPlatformsButtons' style = "position : absolute; z-index : 2; display : none;">
+			<a href = 'https://www.kaggle.com/stphanepetiot'>
+				<img class = 'techPlatformsIcons' src = './files/pictures/kaggle_logo.png'>
+			</a>
+			<a href = 'https://github.com/StephanePetiot'>
+				<img class = 'techPlatformsIcons' src = './files/pictures/github_logo.png'>
+			</a>
+			<a href = 'https://stackoverflow.com/users/14735969/st%c3%a9phane-petiot'>
+				<img class = 'techPlatformsIcons' src = './files/pictures/stackoverflow_logo.png'>
+			</a>
+		</div>
+	
+	<script type = 'text/javascript' src = './files/Scripts/Tween.js'></script>
+	<script type = 'module'>
+
+		import * as THREE from './files/Scripts/three.module.js';
+
+		import { OrbitControls } from './files/Scripts/OrbitControls.js';
+
+		import { EffectComposer } from './files/Scripts/EffectComposer.js';
+		import { UnrealBloomPass } from './files/Scripts/UnrealBloomPass.js';
+		import { RenderPass } from './files/Scripts/RenderPass.js';
+		import { ShaderPass } from './files/Scripts/ShaderPass.js';
+		import { ClearPass } from './files/Scripts/ClearPass.js';
+		import { CopyShader } from './files/Scripts/CopyShader.js';
+		import { CSS3DRenderer, CSS3DObject } from './files/Scripts/CSS3DRenderer.js';
+
+		var rotatingGroup;
+		var container;
+		var particlesData = [];
+		var camera, scene, renderer, composer, rayCaster, mouse;
+		var positions, colors;
+		var particles;
+		var pointCloud;
+		var particlePositions;
+		var linesMesh;
+		var sphereMaterial, sphereSelectedMaterial;
+		var sphereWork, sphereDegree, sphereSkills, sphereMisc;
+		var linesSection = [];
+		var sectionPanel;
+
+		var maxParticleCount = 1000;
+		var particleCount = 750;
+		var r = 2500;
+		var rHalf = r / 2;
+
+		var effectController = {
+			showDots: true,
+			showLines: true,
+			minDistance: 150,
+			limitConnections: true,
+			maxConnections: 20,
+			particleCount: 500
+		};
+
+		const SPHERE_Y_LEVELS = -500;
+		
+		const WORK_SECTION = 0, DEGREE_SECTION = 1, SKILLS_SECTION = 2, MISC_SECTION = 3;
+
+		const FRENCH = 0, ENGLISH = 1;
+
+		var intersectWork, intersectDegree, intersectSkills, intersectMisc;
+
+		var cssRenderer, cssScene;
+
+		var infoDomObject, workDomObject, degreeDomObject, skillsDomObject, miscDomObject;
+		var workLabelDomObject, degreeLabelDomObject, skillsLabelDomObject, miscLabelDomObject;
+
+		var frenchTextContent = [];
+		var englishTextContent = [];
+		
+		var frenchButton, englishButton;
+		var frenchTextContent = [
+				"LANGUE",
+				"Français",
+				"Anglais",
+				"Ingénieur Data & Machine Learning",
+				"Mon profil est axé autour des Data Sciences, avec une spécialisation en Machine Learning.",
+				"Je possède également des compétences intermédiaires en développement logiciel et en Web.",
+				"EXPERIENCE PROFESSIONNELLE",
+				"Février",
+				"Juin",
+				"Ingénieur Big Data",
+				"Contribution au développement et à l’industrialisation d’un outil d’aide à la décision pour les analystes business des airlines.",
+				"Tests avec",
+				"Environnement Agile",
+				"Septembre",
+				"Analyste Soutien Logistique Intégré",
+				"Développement d’une application web de formation (HTML, CSS, JavaScript avec technologie WebGL)",
+				"Développement d’une solution de traitement pour la maintenance prédictive (Prototypage sous MatLab, programmation de RNN, SVM, etc.)",
+				"Avril",
+				"Stagiaire Software",
+				"Développement d'un outil de communication I²C avec STM32 interface PC",
+				"FORMATION",
+				"Ingénieur Supélec",
+				"Majeure en Systèmes Interactifs & Robotique",
+				"Formation par apprentissage",
+				"Diplôme Universitaire de Technologie",
+				"Génie Electrique & Informatique Industrielle (GEII)",
+				"Major de promotion",
+				"Baccalauréat Général",
+				"Filière Scientifique (S)",
+				"Option Informatique & Science du Numérique (ISN)",
+				"Mention Assez Bien",
+				"COMPETENCES CLES",
+				"Maîtrise",
+				"Bonne connaissance",
+				"Connaissances basiques",
+				"Langages/Frameworks",
+				"Outils",
+				"Methodes",
+				"Connaissances du secteur",
+				"Défense sous-marine",
+				"Semi-conducteur",
+				"Autres compétences",
+				"Communication orale et écrite français / anglais",
+				"Travail en équipe et agile",
+				"Autonomie",
+				"DIVERS",
+				"Certifications",
+				"Certification Voltaire",
+				"Langues",
+				"Français",
+				"Langue maternelle",
+				"Anglais",
+				"Courant",
+				"Espagnol",
+				"Scolaire",
+				"Centres d'intérêts",
+				"Sport",
+				"Course à pied",
+				"Tennis",
+				"Voyages",
+				"Canada, Etats-Unis, Italie, Belgique, Pays-Bas, Allemagne, Slovénie, Croatie, Monténégro, Albanie, Grèce, Bulgarie, Roumanie, Serbie, Hongrie, Autriche, Slovaquie, Pologne",
+				"Musique",
+				"Pratique de la guitare depuis 2009",
+				"EXPERIENCE",
+				"COMPETENCES"
+			];
+			englishTextContent = [
+				"LANGUAGE",
+				"French",
+				"English",
+				"Data & Machine Learning Engineer",
+				"I am qualified in Data Sciences, with a strong interest in Machine Learning",
+				"I am also proficient in Software and Web development",
+				"WORK EXPERIENCE",
+				"February",
+				"June",
+				"Data Engineer",
+				"Development and industrialization of a decision tool for arlines business analysts.",
+				"Tests with",
+				"Agile Environment",
+				"September",
+				"Integrated Logistic Support Analyst",
+				"Development of a training web application (HTML, CSS, JavaScript with WebGL Technology)",
+				"Development of a predictive maintenance software solution (Prototyping with MatLab, programming of RNN networks, SVM, etc.)",
+				"April",
+				"Software Intern",
+				"Development of an I²C communication interface with STM32 and PC Interface",
+				"EDUCATIONAL BACKGROUND",
+				"Supélec Engineer",
+				"Major in Interactive Systems & Robotics",
+				"Apprenticeship",
+				"2-year University Diploma",
+				"Electrical Engineering & Industrial Computing",
+				"Valedictorian",
+				"Baccalauréat Général",
+				"Sciences",
+				"Major in Computer Sciences",
+				"With distinction",
+				"SKILLS",
+				"Mastery",
+				"Good knowledge",
+				"Basic knowledge",
+				"Languages/Frameworks",
+				"Tools",
+				"Methods",
+				"Field knowledge",
+				"Underwater Defense",
+				"Semiconductor",
+				"Other skills",
+				"Writen and spoken communication french / english",
+				"Team working and Agile",
+				"Autonomy",
+				"MISCELLANEOUS",
+				"Certifications",
+				"Voltaire Certification",
+				"Languages",
+				"French",
+				"Native language",
+				"English",
+				"Fluent",
+				"Spanish",
+				"School knowledge",
+				"Interests",
+				"Sport",
+				"Running",
+				"Tennis",
+				"Travels",
+				"Canada, USA, Italy, Belgium, Netherlands, Germany, Slovenia, Croatia, Montenegro, Albania, Greece, Bulgaria, Romania, Serbia, Hungary, Austria, Slovakia, Poland",
+				"Music",
+				"Guitar practice since 2009",
+				"WORK EXPERIENCE",
+				"SKILLS"
+			];
+
+		window.onload = init();
+		animate();
+
+		function init() {
+			//Récupération du conteneur
+			container = document.getElementById( 'container' );
+
+			//SCENE INITIALIZATION
+			//Scene
+			scene = new THREE.Scene();
+			cssScene = new THREE.Scene();
+			//Load background texture
+			const loader = new THREE.TextureLoader();
+			loader.load('./files/pictures/background3.jpg' , function(texture)
+			{
+				scene.background = texture;
+			});
+
+			//Camera
+			camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 4000 );
+			camera.position.z = 1750;
+			
+			//Renderer
+			renderer = new THREE.WebGLRenderer( { antialias: true, alpha : true } );
+			renderer.setPixelRatio( window.devicePixelRatio );
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			
+			container.appendChild( renderer.domElement );
+			
+			cssRenderer = new CSS3DRenderer();
+			cssRenderer.setSize( window.innerWidth, window.innerHeight );
+			cssRenderer.domElement.style.position = 'absolute';
+			cssRenderer.domElement.style.top = 0;
+			
+			container.appendChild( cssRenderer.domElement );
+
+			window.addEventListener( 'resize', onWindowResize, false );
+
+			//Mouse Manager
+			rayCaster = new THREE.Raycaster();
+			mouse = new THREE.Vector2();
+			
+			//Controles
+			var controls = new OrbitControls( camera, container );
+			controls.minDistance = 1000;
+			controls.maxDistance = 3000;
+
+			//Lumières
+			var light = new THREE.AmbientLight( 0xffffff , 0.6 );
+			scene.add( light );
+
+			//var directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
+			//scene.add( directionalLight );
+
+			//3D OBJECTS INITIALIZATION
+			//Groupe objets orbitants
+			rotatingGroup = new THREE.Group();
+			scene.add( rotatingGroup );
+
+			//Nuage de points et segments
+			var segments = maxParticleCount * maxParticleCount;	//Nombre de connexions possibles
+			positions = new Float32Array( segments * 3 );	//Coordonnées des points
+			colors = new Float32Array( segments * 3 );	//Couleurs des points
+			
+			particlePositions = new Float32Array( maxParticleCount * 3 );
+			particles = new THREE.BufferGeometry();
+
+			var pMaterial = new THREE.PointsMaterial( {
+				color: 0xFFFFFF,
+				size: 1.1,
+				blending: THREE.AdditiveBlending,
+				transparent: true,
+				sizeAttenuation: false
+			} );
+
+			for ( var i = 0; i < maxParticleCount; i ++ ) {
+
+				var x = Math.random() * r - r / 2;
+				var y = Math.random() * r - r / 2;
+				var z = Math.random() * r - r / 2;
+
+				particlePositions[ i * 3 ] = x;
+				particlePositions[ i * 3 + 1 ] = y;
+				particlePositions[ i * 3 + 2 ] = z;
+
+				// add it to the geometry
+				particlesData.push( {
+					velocity: new THREE.Vector3( - 1 + Math.random() * 2, - 1 + Math.random() * 2, - 1 + Math.random() * 2 ),
+					numConnections: 0
+				} );
+
+			}
+
+			particles.setDrawRange( 0, particleCount );
+			particles.setAttribute( 'position', new THREE.BufferAttribute( particlePositions, 3 ).setUsage( THREE.DynamicDrawUsage ) );
+
+			// create the particle system
+			pointCloud = new THREE.Points( particles, pMaterial );
+			rotatingGroup.add( pointCloud );
+
+			var geometry = new THREE.BufferGeometry();
+
+			geometry.setAttribute( 'position', new THREE.BufferAttribute( positions, 3 ).setUsage( THREE.DynamicDrawUsage ) );
+			geometry.setAttribute( 'color', new THREE.BufferAttribute( colors, 3 ).setUsage( THREE.DynamicDrawUsage ) );
+
+			geometry.computeBoundingSphere();
+
+			geometry.setDrawRange( 0, 0 );
+
+			var material = new THREE.LineBasicMaterial( {
+				vertexColors: true,
+				blending: THREE.AdditiveBlending,
+				transparent: true
+			} );
+
+			linesMesh = new THREE.LineSegments( geometry, material );
+			rotatingGroup.add( linesMesh );
+
+			//Spheres
+
+			var geometry = new THREE.SphereGeometry( 50, 50, 50 );
+			sphereMaterial = new THREE.MeshPhongMaterial( {color : 0xffffff, transparent : true} );
+			sphereSelectedMaterial = new THREE.MeshPhongMaterial({color : 0xffffff, transparent : true, opacity : 1});
+
+			sphereWork = new THREE.Mesh( geometry, sphereMaterial );
+			sphereDegree = new THREE.Mesh( geometry, sphereMaterial );
+			sphereSkills = new THREE.Mesh( geometry, sphereMaterial );
+			sphereMisc = new THREE.Mesh( geometry, sphereMaterial );
+
+			sphereWork.position.set( -750, SPHERE_Y_LEVELS, 0 );
+			sphereDegree.position.set( -250, SPHERE_Y_LEVELS, 0 );
+			sphereSkills.position.set( 250, SPHERE_Y_LEVELS, 0 );
+			sphereMisc.position.set( 750, SPHERE_Y_LEVELS, 0 );
+
+			scene.add( sphereWork );
+			scene.add( sphereDegree );
+			scene.add( sphereSkills );
+			scene.add( sphereMisc );
+
+			// Lignes support section
+
+			material = new THREE.LineBasicMaterial({ color: 0xffffff });
+			linesSection = [
+				new THREE.Line(
+					new THREE.BufferGeometry().setFromPoints( 
+						[new THREE.Vector3( 0, SPHERE_Y_LEVELS, 0 ), 
+						new THREE.Vector3( 0, SPHERE_Y_LEVELS / 1.5, 0 )]
+					),
+					material
+				),
+				new THREE.Line(
+					new THREE.BufferGeometry().setFromPoints( 
+						[new THREE.Vector3( 0, SPHERE_Y_LEVELS / 1.5, 0 ), 
+						new THREE.Vector3( sphereWork.position.x - 100, SPHERE_Y_LEVELS / 1.5, 0 )]
+					),
+					material
+				),
+				new THREE.Line(
+					new THREE.BufferGeometry().setFromPoints( 
+						[new THREE.Vector3( 0, SPHERE_Y_LEVELS / 1.5, 0 ), 
+						new THREE.Vector3( sphereMisc.position.x + 100, SPHERE_Y_LEVELS / 1.5, 0 )]
+					),
+					material
+				),
+				new THREE.Line(
+					new THREE.BufferGeometry().setFromPoints( 
+						[new THREE.Vector3( sphereWork.position.x, SPHERE_Y_LEVELS / 1.5, 0 ), 
+						new THREE.Vector3( sphereWork.position.x - 150, SPHERE_Y_LEVELS / 1.5 + 50, 0 )]
+					),
+					material
+				),
+				new THREE.Line(
+					new THREE.BufferGeometry().setFromPoints( 
+						[new THREE.Vector3( sphereMisc.position.x, SPHERE_Y_LEVELS / 1.5, 0 ), 
+						new THREE.Vector3( sphereMisc.position.x + 150, SPHERE_Y_LEVELS / 1.5 + 50, 0 )]
+					),
+					material
+				)
+			]
+
+			//Support semi-transparent section
+
+			var sectionShape = new THREE.ShapeBufferGeometry(new THREE.Shape(
+				[
+					new THREE.Vector3(sphereWork.position.x - 100, SPHERE_Y_LEVELS / 1.5, 0),
+					new THREE.Vector3(sphereWork.position.x - 150, SPHERE_Y_LEVELS / 1.5 + 50, 0),
+					new THREE.Vector3(sphereWork.position.x - 150, SPHERE_Y_LEVELS / 1.5 + 900, 0),
+					new THREE.Vector3(sphereMisc.position.x + 150, SPHERE_Y_LEVELS / 1.5 + 900, 0),
+					new THREE.Vector3(sphereMisc.position.x + 150, SPHERE_Y_LEVELS / 1.5 + 50, 0),
+					new THREE.Vector3(sphereMisc.position.x + 100, SPHERE_Y_LEVELS / 1.5, 0),
+					new THREE.Vector3(sphereWork.position.x, SPHERE_Y_LEVELS / 1.5, 0)
+				]
+			));
+			var material = new THREE.MeshBasicMaterial({color : 0xffffff, opacity : 0.1, transparent : true});
+			sectionPanel = new THREE.Mesh(sectionShape, material);
+
+			// POSTPROCESSING : Effet Bloom
+
+			var params = {
+				bloomStrength: 0.75,
+				bloomThreshold: 0.5,
+				bloomRadius: 0.01
+			};
+
+			composer = new EffectComposer(renderer);
+			composer.setSize( window.innerWidth, window.innerHeight );
+
+			var renderPass = new RenderPass(scene, camera);
+
+			var bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight),params.bloomStrength, params.bloomRadius, params.bloomThreshold, sphereDegree, scene, camera);
+			bloomPass.threshold = params.bloomThreshold;
+			bloomPass.strength = params.bloomStrength;
+			bloomPass.radius = params.bloomRadius;
+
+			composer.addPass(renderPass);
+			composer.addPass(bloomPass);
+
+			//EVENTS
+			window.addEventListener('mousemove', onMouseMove, false);
+			document.getElementById('frenchButton').addEventListener('click', function() {
+				document.getElementById('langLabel').textContent = frenchTextContent[0];
+				document.getElementById('frenchLabel').textContent = frenchTextContent[1];
+				document.getElementById('englishLabel').textContent = frenchTextContent[2];
+				changeLanguage( FRENCH );
+			}, false);
+			document.getElementById('englishButton').addEventListener('click', function() {
+				document.getElementById('langLabel').textContent = englishTextContent[0];
+				document.getElementById('frenchLabel').textContent = englishTextContent[1];
+				document.getElementById('englishLabel').textContent = englishTextContent[2];
+				changeLanguage( ENGLISH );
+			}, false);
+
+			//3D HTML CONTENT
+			var infoElement = document.createElement('div');
+
+			infoElement.innerHTML += 
+				"<div id = 'headlines'>"
+					+ "<img id = 'mainPic' src = './files/pictures/stef.jpg'>"
+					+ "<div id = 'mainInformation'>"
+						+ "<span id = 'name'>Stéphane Petiot</span></br>"
+						+ "<span id = 'profileTitle'>Ingénieur Data & Machine Learning</span>"
+					+ "</div>"
+					+ "<div id = 'profileDescription'>"
+						+ "Mon profil est axé autour des Data Sciences, avec une spécialisation en Machine Learning.</br>"
+						+ "Je possède également des compétences intermédiaires en développement logiciel et en Web."
+					+ "</div>"
+					+ "<div id = 'contactInformation'>"
+						+ "<img class = 'contactIcons' src = './files/pictures/mail.png'>&nbsp;stephane.petiot@hotmail.fr</br>"
+						+ "<img class = 'contactIcons' src = './files/pictures/phone.png'>&nbsp;+33 6 67 22 57 50</br>"
+						+ "<img class = 'contactIcons' src = './files/pictures/location.png'>&nbsp;"
+							+ "Cagnes-sur-Mer, Alpes-Maritimes,</br>"
+							+ "&emsp;&nbsp;France"
+					+ "</div>"
+				+ "</div>"
+			infoElement.style.position = 'absolute';
+			infoElement.style.top = '5em'
+			infoElement.style.width = '110em';
+			infoElement.style.height = '53em';
+			infoElement.style.fontFamily = 'Calibri Light, Calibri, sans-serif';
+
+			infoDomObject = new CSS3DObject( infoElement );
+			cssScene.add(infoDomObject);
+
+			var workElement = document.createElement( 'div' );
+
+			workElement.innerHTML +=
+			"<div class = 'sectionHeader'>"
+				+ "<img class = 'sectionIcon' src = './files/pictures/workexperience.png'>"
+				+ "<span id = 'workSectionLabel'>EXPERIENCE PROFESSIONNELLE</span>"
+			+ "</div>"
+			+ "<div class = 'sectionContent'>"
+				+ "<div class = 'date' id = 'dateWork1' style = ' grid-column: 1; grid-row: 1; '>"
+					+ "Février 2020 -</br>"
+					+ "Juin 2020"
+				+ "</div>"
+				+ "<div class = 'job' style = ' grid-column: 2; grid-row: 1; '>"
+					+ "<span class = 'positionName' id = 'positionName1'>Ingénieur Big Data | </span>"
+					+ "<span class = 'companyCredentials'>Datacorp Innovation – Sophia Antipolis</span>"
+					+ "<span class = 'jobDescription' id = 'jobDescription1'>"
+						+ "</br>Contribution au développement et à l’industrialisation d’un outil d’aide à la décision pour les analystes business des airlines.</br>"
+						+ "<span style = 'font-weight : bold'>Front-end :</span> Angular 9, Tests avec Karma (Jasmine), Protractor</br>"
+						+ "<span style = 'font-weight : bold'>Back-end :</span> C++</br>"
+						+ "<span style = 'font-weight : bold'>Big Data :</span> Hadoop/Spark, Scala</br>"
+						+ "Environnement Agile (Scrum)"
+					+ "</span>"
+				+ "</div>"
+				+ "<div class = 'date' id = 'dateWork2' style = ' grid-column: 1; grid-row: 2; '>"
+					+ "Septembre 2016 -</br>"
+					+ "Septembre 2019"
+				+ "</div>"
+				+ "<div class = 'job' style = ' grid-column: 2; grid-row: 2; '>"
+					+ "<span class = 'positionName' id = 'positionName2'>Analyste Soutien Logistique Intégré | </span>"
+					+ "<span class = 'companyCredentials'>Thales DMS – Sophia Antipolis</br></span>"
+					+ "<span class = 'jobDescription' id = 'jobDescription2'>"
+						+ "Développement d’une application web de formation (HTML, CSS, JavaScript avec technologie WebGL)</br>"
+						+ "Développement d’une solution de traitement pour la maintenance prédictive (Prototypage sous MatLab, programmation de RNN, SVM, etc.)"
+					+ "</span>"
+				+ "</div>"
+				+ "<div class = 'date' id = 'dateWork3' style = ' grid-column: 1; grid-row: 3; '>"
+					+ "Avril 2014 -</br>"
+					+ "Juin 2014"
+				+ "</div>"
+				+ "<div class = 'job' style = ' grid-column: 2; grid-row: 3; '>"
+					+ "<span class = 'positionName' id = 'positionName3'>Stagiaire Software | </span>"
+					+ "<span class = 'companyCredentials'>STMicroelectronics - Sophia Antipolis</br></span>"
+					+ "<span class = 'jobDescription' id = 'jobDescription3'>"
+						+ "Développement d'un outil de communication I²C à base de STM32 et avec interface PC</br>"
+						+ "<span style = ' font-weight : bold; '>Technologies</span> : C++, Qt, STM32, mbed"
+					+ "</span>"
+				+ "</div>"
+			+ "</div>"			
+			workElement.style.position = 'absolute';
+			workElement.style.top = '9em'
+			workElement.style.width = '110em';
+			workElement.style.height = '53em';
+
+			workDomObject = new CSS3DObject( workElement );
+			workDomObject.visible = false;
+			cssScene.add(workDomObject)
+
+			var degreeElement = document.createElement( 'div' );
+
+			degreeElement.innerHTML += 
+			"<div class = 'sectionHeader'>"
+				+ "<img class = 'sectionIcon' src = './files/pictures/degree.png'>"
+				+ "<span id = 'degreeSectionLabel'>FORMATION</span>"
+			+ "</div>"
+			+ "<div class = 'sectionContent'>"
+				+ "<div class = 'date' style = ' grid-column: 1; grid-row: 1;'>"
+					+ "2016 -"
+					+ "2019"
+				+ "</div>"
+				+ "<div class = 'degree' style = ' grid-column: 2; grid-row: 1;'>"
+					+ "<span class = 'degreeName' id = 'degreeName1'>Ingénieur Supélec | </span>"
+					+ "<span class = 'schoolCredentials'>CentraleSupélec - Gif-sur-Yvette, Metz</span>"
+					+ "<span class = 'degreeDescription' id = 'degreeDescription1'>"
+						+ "</br>Majeure en Systèmes Interactifs & Robotique</br>"
+						+ "Formation par apprentissage (Thales DMS - Sophia Antipolis)"
+					+ "</span>"
+				+ "</div>"
+				+ "<div class = 'date' style = ' grid-column: 1; grid-row: 2;'>"
+					+ "2014 -"
+					+ "2016"
+				+ "</div>"
+				+ "<div class = 'degree' style = ' grid-column: 2; grid-row: 2;'>"
+					+ "<span class = 'degreeName' id = 'degreeName2'>Diplôme Universitaire de Technologie | </span>"
+					+ "<span class = 'schoolCredentials'>IUT Nice Côte D'Azur - Nice</span>"
+					+ "<span class = 'degreeDescription' id = 'degreeDescription2'>"
+						+ "</br>Génie Electrique & Informatique Industrielle (GEII)</br>"
+						+ "Major de promotion"
+					+ "</span>"
+				+ "</div>"
+				+ "<div class = 'date' style = ' grid-column: 1; grid-row: 3; '>"
+					+ "2013"
+				+ "</div>"
+				+ "<div class = 'degree' style = ' grid-column: 2; grid-row: 3; '>"
+					+ "<span class = 'degreeName' id = 'degreeName3'>Baccalauréat Général | </span>"
+					+ "<span class = 'schoolCredentials'>Lycée Auguste Renoir - Cagnes-sur-Mer</span>"
+					+ "<span class = 'degreeDescription' id = 'degreeDescription3'>"
+						+ "</br>Filière Scientifique (S)</br>"
+						+ "Option Informatique & Science du Numérique (ISN)</br>"
+						+ "Mention Assez Bien"
+					+ "</span>"
+				+ "</div>"
+			+ "</div>"
+			degreeElement.style.position = 'absolute';
+			degreeElement.style.top = '9em'
+			degreeElement.style.width = '110em';
+			degreeElement.style.height = '53em';
+
+			degreeDomObject = new CSS3DObject( degreeElement );
+			degreeDomObject.visible = false;
+			cssScene.add(degreeDomObject);
+
+			var skillsElement = document.createElement( 'div' );
+
+			var greenDotHtml = "<span style = ' color : green; '>&#9679;</span>";
+			var orangeDotHtml = "<span style = ' color : orange; '>&#9679;</span>";
+			var orangeredDotHtml = "<span style = ' color : orangered; '>&#9679;</span>";
+			skillsElement.innerHTML +=
+				"<div class = 'sectionHeader'>"
+					+ "<img class = 'sectionIcon' src = './files/pictures/skills.png'>"
+					+ "<span id = 'skillsSectionLabel'>COMPETENCES CLES</span>&emsp;&emsp;"
+					+ "<span class = 'levelsLegend'>"
+						+ greenDotHtml + "<span id = 'masteryLabel'>Maîtrise</span>&nbsp;"
+						+ orangeDotHtml + "<span id = 'goodKnowledgeLabel'>Bonne connaissance</span>&nbsp;"
+						+ orangeredDotHtml + "<span id = 'basicKnowledgeLabel'>Connaissances basiques</span>"
+					+ "</span>"
+				+ "</div>"
+				+ "<div class = 'sectionContent'>"
+					+ "<div class = 'skillsCategory' style = ' grid-column: 1; grid-row-start: 1; grid-row-end: 4; '>"
+						+ "<span class = 'skillsTopic' id = 'skillsTopic1'><u>Langages/Frameworks</u></span>"
+						+ "<dl class = 'skillsDescription' style = ' display : grid; grid-row-gap : 0.5em; '>"
+							+ "<span style = 'grid-column : 1; grid-row : 1'>"
+								+ "<dt class = 'skillName'>Python " + orangeDotHtml + "</dt>"
+									+ "<dd>scikit-learn " + orangeDotHtml + "</dd>"
+									+ "<dd>TensorFlow " + orangeredDotHtml + "</dd>"
+									+ "<dd>PyTorch " + orangeredDotHtml + "</dd>"
+							+ "</span>"
+							+ "<span style = 'grid-column : 1; grid-row : 2'>"
+								+ "<dt class = 'skillName'>C++ " + orangeDotHtml + "</dt>"
+									+ "<dd>Qt " + orangeDotHtml + "</dd>"
+							+ "</span>"
+							+ "<span style = 'grid-column : 1; grid-row : 3'>"
+								+ "<dt class = 'skillName'>Scala " + orangeredDotHtml + "</dt>"
+									+ "<dd>Hadoop/Spark " + orangeredDotHtml + "</dd>"
+							+ "</span>"
+							+ "<span style = 'grid-column : 1; grid-row : 4'>"
+								+ "<dt class = 'skillName'>SQL " + orangeredDotHtml + "</dt>"
+							+ "</span>"
+							+ "<span style = 'grid-column : 1; grid-row : 5'>"
+								+ "<dt class = 'skillName'>HTML/CSS " + greenDotHtml + "</dt>"
+							+ "</span>"
+							+ "<span style = 'grid-column : 2; grid-row : 1'>"
+								+ "<dt class = 'skillName'>JavaScript / TypeScript " + greenDotHtml + "</dt>"
+									+ "<dd>Angular " + orangeDotHtml + "</dd>"
+									+ "<dd>Karma/Jasmine " + orangeredDotHtml + "</dd>"
+									+ "<dd>Protractor " + orangeredDotHtml + "</dd>"
+									+ "<dd>jQuery " + greenDotHtml + "</dd>"
+									+ "<dd>three.js " + greenDotHtml + "</dd>"
+							+ "</span>"
+							+ "<span style = 'grid-column : 2; grid-row : 2'>"
+								+ "<dt class = 'skillName'>MatLab " + greenDotHtml + "</dt>"
+									+ "<dd>MatLab for ML " + orangeDotHtml + "</dd>"
+							+ "</span>"
+							+ "<span style = 'grid-column : 2; grid-row : 3'>"
+								+ "<dt class = 'skillName'>C# " + orangeredDotHtml + "</dt>"
+									+ "<dd>.NET " + orangeredDotHtml + "</dd>"
+							+ "</span>"
+							+ "<span style = 'grid-column : 2; grid-row : 4'>"
+								+ "<dt class = 'skillName'>Java " + orangeDotHtml + "</dt>"
+							+ "</span>"
+						+ "</dl>"
+					+ "</div>"
+					+ "<div class = 'skillsCategory' style = ' grid-column: 2; grid-row: 3; '>"
+						+ "<span class = 'skillsTopic'><u>OS</u></span>"
+						+ "<dl class = 'skillsDescription'>"
+							+ "<dt>Windows " + orangeDotHtml + "</dt>"
+							+ "<dt>Linux " + orangeDotHtml + "</dt>"
+						+ "</dl>"
+					+ "</div>"
+					+ "<div class = 'skillsCategory' style = ' grid-column: 2; grid-row-start: 1; grid-row-end: 3; '>"
+						+ "<span class = 'skillsTopic' id = 'skillsTopic3'><u>Outils</u></span>"
+						+ "<dl class = 'skillsDescription'>"
+							+ "<dt>MatLab " + greenDotHtml + "</dt>"
+							+ "<dt>Visual Studio Code " + greenDotHtml + "</dt>"
+							+ "<dt>Qt Creator " + orangeDotHtml + "</dt>"
+							+ "<dt>IntelliJ " + orangeredDotHtml + "</dt>"
+							+ "<dt>Eclipse " + orangeDotHtml + "</dt>"
+							+ "<dt>Git " + orangeDotHtml + "</dt>"
+								+ "<dd>GitHub " + orangeDotHtml + "</dd>"
+								+ "<dd>BitBucket " + orangeDotHtml + "</dd>"
+							+ "<dt>Jira " + orangeDotHtml + "</dd>"
+						+ "</dl>"
+					+ "</div>"
+					+ "<div class = 'skillsCategory' style = ' grid-column: 3; grid-row: 2; '>"
+						+ "<span class = 'skillsTopic' id = 'skillsTopic4'><u>Methodes</u></span>"
+						+ "<dl class = 'skillsDescription'>"
+							+ "<dt>Scrum " + orangeDotHtml + "</dt>"
+						+ "</dl>"
+					+ "</div>"
+					+ "<div class = 'skillsCategory' style = ' grid-column: 3; grid-row: 1; '>"
+						+ "<span class = 'skillsTopic' id = 'skillsTopic5'><u>Connaissances du secteur</u></span>"
+						+ "<dl class = 'skillsDescription' id = 'skillsDescription5'>"
+							+ "<dt>Défense sous-marine " + orangeDotHtml + "</dt>"
+							+ "<dt>IT " + orangeDotHtml + "</dt>"
+							+ "<dt>Semi-conducteur " + orangeredDotHtml + "</dt>"
+						+ "</dl>"
+					+ "</div>"
+					+ "<div class = 'skillsCategory' style = ' grid-column: 3; grid-row: 3; '>"
+						+ "<span class = 'skillsTopic' id = 'skillsTopic6'><u>Autres compétences</u></span>"
+						+ "<dl class = 'skillsDescription' id = 'skillsDescription6'>"
+							+ "<dt>Communication orale et écrite français / anglais</dt>"
+							+ "<dt>Travail en équipe et agile</dt>"
+							+ "<dt>Autonomie</dt>"
+						+ "</dl>"
+					+ "</div>"
+				+ "</div>"
+			skillsElement.style.position = 'absolute';
+			skillsElement.style.top = '9em'
+			skillsElement.style.width = '110em';
+			skillsElement.style.height = '53em';
+
+			skillsDomObject = new CSS3DObject( skillsElement );
+			skillsDomObject.visible = false;
+			cssScene.add(skillsDomObject);
+
+			var miscElement = document.createElement( 'div' );
+
+			miscElement.innerHTML +=
+				"<div class = 'sectionHeader'>"
+					+ "<img class = 'sectionIcon' src = './files/pictures/miscellaneous.png'>"
+					+ "<span id = 'miscSectionLabel'>DIVERS</span>"
+				+ "</div>"
+				+ "<div class = 'sectionContent'>"
+					+ "<div class = 'misc' style = ' grid-column: 1; grid-row: 1; '>"
+						+ "<span class = 'miscTopic' id = 'miscTopic1'><u>Certifications</u></span>"
+						+ "<dl class = 'miscDescription'>"
+							+ "<dt><span class = 'miscName'>TOEFL ITP</span> : 607/677 (2018)</dt>"
+							+ "<dt><span class = 'miscName'>TOEIC Listening & Reading</span> : 900/990 (2016)</dt>"
+							+ "<dt><span class = 'miscName' id = 'miscCertificationName3'>Certification Voltaire</span> : 816/1000 (2016)</dt>"
+						+ "</dl>"
+					+ "</div>"
+					+ "<div class = 'misc' style = ' grid-column: 2; grid-row: 1; '>"
+						+ "<span class = 'miscTopic' id = 'miscTopic2'><u>Langues</u></span>"
+						+ "<dl class = 'miscDescription'>"
+							+ "<dt>"
+								+ "<img class = 'languageFlag' src = './files/pictures/france.png'>"
+								+ "<span class = 'miscName' id = 'miscLanguageName1'>&nbsp;Français</span> : <span id = 'nativeLanguageLabel'>Langue Maternelle</span>"
+							+ "</dt>"
+							+ "<dt>"
+								+ "<img class = 'languageFlag' src = './files/pictures/uk.png'>"
+								+ "<span class = 'miscName' id = 'miscLanguageName2'>&nbsp;Anglais</span> : <span id = 'fluentLabel'>Courant</span> (C1)"
+							+ "</dt>"
+							+ "<dt>"
+								+ "<img class = 'languageFlag' src = './files/pictures/spain.png'>"
+								+ "<span class = 'miscName' id = 'miscLanguageName3'>&nbsp;Espagnol</span> : <span id = 'academicLabel'>Scolaire</span>"
+							+ "</dt>"
+						+ "</dl>"
+					+ "</div>"
+					+ "<div class = 'misc' style = ' grid-column-start: 1; grid-column-end: 3; grid-row: 2; '>"
+						+ "<span class = 'miscTopic' id = 'miscTopic3'><u>Centres d'intérêts</u></span>"
+						+ "<dl class = 'miscDescription' style = ' display : grid '>"
+							+ "<span style = ' grid-column : 1; grid-row : 1; '>"
+								+ "<dt class = 'miscName' id = 'miscInterestsName1'>Sport</dt>"
+									+ "<dd id = 'runningLabel'>Course à pied</dd>"
+									+ "<dd id = 'tennisLabel'>Tennis</dd>"
+							+ "</span>"
+							+ "<span style = ' grid-column-start : 1; grid-column-end : 3; grid-row : 2; '>"
+								+ "<dt class = 'miscName' id = 'miscInterestsName2'>Voyages</dt>"
+									+ "<dd id = 'travelsLabel' style = ' line-height : 1; '>Canada, Etats-Unis, Italie, Belgique, Pays-Bas, Allemagne, Slovénie, Croatie, Monténégro, Albanie, Grèce, Bulgarie, Roumanie, Serbie, Hongrie, Autriche, Slovaquie, Pologne</dd>"
+							+ "</span>"
+							+ "<span style = ' grid-column : 2; grid-row : 1; '>"
+							+ "<dt class = 'miscName' id = 'miscInterestsName3'>Musique</dt>"
+								+ "<dd id = 'guitarLabel'>Pratique de la guitare depuis 2009</dd>"
+							+ "</span>"
+						+ "</dl>"
+					+ "</div>"
+				+ "</div>"
+			miscElement.style.position = 'absolute';
+			miscElement.style.top = '9em'
+			miscElement.style.width = '110em';
+			miscElement.style.height = '53em';
+
+			miscDomObject = new CSS3DObject( miscElement );
+			miscDomObject.visible = false;
+			cssScene.add(miscDomObject);
+
+			var workElementLabel = document.createElement( 'div' );
+
+			workElementLabel.innerHTML += "<span id = 'workSphereLabel'>EXPERIENCE</span>";
+			workElementLabel.style.fontFamily = 'Calibri Light, Calibri, sans-serif';
+			workElementLabel.style.fontSize = '2.5em';
+			workElementLabel.style.fontWeight = 'bold';
+
+			workLabelDomObject = new CSS3DObject( workElementLabel );
+			workLabelDomObject.position.set(sphereWork.position.x, SPHERE_Y_LEVELS + 125, 0);
+			cssScene.add( workLabelDomObject );
+
+			var degreeElementLabel = document.createElement( 'div' );
+
+			degreeElementLabel.innerHTML += "<span id = 'degreeSphereLabel'>FORMATION</span>";
+			degreeElementLabel.style.fontFamily = 'Calibri Light, Calibri, sans-serif';
+			degreeElementLabel.style.fontSize = '2.5em';
+			degreeElementLabel.style.fontWeight = 'bold';
+
+			degreeLabelDomObject = new CSS3DObject( degreeElementLabel );
+			degreeLabelDomObject.position.set(sphereDegree.position.x, SPHERE_Y_LEVELS + 125, 0);
+			cssScene.add( degreeLabelDomObject );
+
+			var skillsElementLabel = document.createElement( 'div' );
+
+			skillsElementLabel.innerHTML += "<span id = 'skillsSphereLabel'>COMPETENCES</span>";
+			skillsElementLabel.style.fontFamily = 'Calibri Light, Calibri, sans-serif';
+			skillsElementLabel.style.fontSize = '2.5em';
+			skillsElementLabel.style.fontWeight = 'bold';
+
+			skillsLabelDomObject = new CSS3DObject( skillsElementLabel );
+			skillsLabelDomObject.position.set(sphereSkills.position.x, SPHERE_Y_LEVELS + 125, 0);
+			cssScene.add( skillsLabelDomObject );
+
+			var miscElementLabel = document.createElement( 'div' );
+
+			miscElementLabel.innerHTML += "<span id = 'miscSphereLabel'>DIVERS</span>";
+			miscElementLabel.style.fontFamily = 'Calibri Light, Calibri, sans-serif';
+			miscElementLabel.style.fontSize = '2.5em';
+			miscElementLabel.style.fontWeight = 'bold';
+
+			miscLabelDomObject = new CSS3DObject( miscElementLabel );
+			miscLabelDomObject.position.set(sphereMisc.position.x, SPHERE_Y_LEVELS + 125, 0);
+			cssScene.add( miscLabelDomObject );
+
+			document.getElementById('languageButtons').style.display = 'block';
+			document.getElementById('socialMediaButtons').style.display = 'block';
+			document.getElementById('techPlatformsButtons').style.display = 'block';
+
+			document.getElementById("loader").style.opacity = 0;
+			setTimeout(function(){document.getElementById("loader").style.display = "none";}, 1750);
+		}
+
+		function changeLanguage( language ) {
+			var textContent;
+			switch( language ) {
+				case FRENCH :
+					textContent = frenchTextContent;
+					break;
+				case ENGLISH :
+					textContent = englishTextContent;
+					break;
+				default :
+					textContent = frenchTextContent;
+					break;
+			}
+
+			document.getElementById('profileTitle').textContent = textContent[3];
+			document.getElementById('profileDescription').innerHTML = textContent[4] + "</br>" + textContent[5];
+			document.getElementById('workSectionLabel').textContent = textContent[6];
+			document.getElementById('dateWork1').innerHTML = textContent[7] + " 2020 -</br>" + textContent[8] + " 2020";
+			document.getElementById('positionName1').textContent = textContent[9] + " | ";
+			document.getElementById('jobDescription1').innerHTML = 
+				"</br>" + textContent[10] + "</br>"
+				+ "<span style = 'font-weight : bold'>Front-end :</span> Angular 9, " + textContent[11] + " Karma (Jasmine), Protractor</br>"
+				+ "<span style = 'font-weight : bold'>Back-end :</span> C++</br>"
+				+ "<span style = 'font-weight : bold'>Big Data :</span> Hadoop/Spark, Scala</br>"
+				+ textContent[12];
+			document.getElementById('dateWork2').innerHTML = textContent[13] + " 2016 -</br>" + textContent[13] + " 2019";
+			document.getElementById('positionName2').textContent = textContent[14] + " | ";
+			document.getElementById('jobDescription2').innerHTML = textContent[15] + "</br>" + textContent[16];
+			document.getElementById('dateWork3').innerHTML = textContent[17] + " 2014 -</br>" + textContent[8] + " 2014";
+			document.getElementById('positionName3').textContent = textContent[18] + " | "
+			document.getElementById('jobDescription3').innerHTML = textContent[19] + "</br><span style = ' font-weight : bold; '>Technologies</span> : C++, Qt, STM32, mbed"
+			document.getElementById('degreeSectionLabel').textContent = textContent[20];
+			document.getElementById('degreeName1').textContent = textContent[21] + " | ";
+			document.getElementById('degreeDescription1').innerHTML =
+				"</br>" + textContent[22] + "</br>"
+				+ textContent[23] + " (Thales DMS - Sophia Antipolis)";
+			document.getElementById('degreeName2').textContent = textContent[24] + " | ";
+			document.getElementById('degreeDescription2').innerHTML =
+				"</br>" + textContent[25] + "</br>"
+				+ textContent[26];
+			document.getElementById('degreeName3').textContent = textContent[27] + " | ";
+			document.getElementById('degreeDescription3').innerHTML =
+				"</br>" + textContent[28] + "</br>"
+				+ textContent[29] + "</br>"
+				+ textContent[30];
+			document.getElementById('skillsSectionLabel').textContent = textContent[31];
+			document.getElementById('masteryLabel').textContent = textContent[32];
+			document.getElementById('goodKnowledgeLabel').textContent = textContent[33];
+			document.getElementById('basicKnowledgeLabel').textContent = textContent[34];
+			document.getElementById('skillsTopic1').innerHTML = "<u>" + textContent[35] + "</u>";
+			document.getElementById('skillsTopic3').innerHTML = "<u>" + textContent[36] + "</u>";
+			document.getElementById('skillsTopic4').innerHTML = "<u>" + textContent[37] + "</u>";
+			document.getElementById('skillsTopic5').innerHTML = "<u>" + textContent[38] + "</u>";
+			document.getElementById('skillsDescription5').innerHTML =
+				"<dt>" + textContent[39] + " <span style = ' color : orange; '>&#9679;</span></dt>"
+				+ "<dt>IT " + " <span style = ' color : orange; '>&#9679;</span></dt>"
+				+ "<dt>" + textContent[40] + " <span style = ' color : orangered; '>&#9679;</span></dt>"
+			document.getElementById('skillsTopic6').innerHTML = "<u>" + textContent[41] + "</u>";
+			document.getElementById('skillsDescription6').innerHTML =
+				"<dt>" + textContent[42] + "</dt>"
+				+ "<dt>" + textContent[43] + "</dt>"
+				+ "<dt>" + textContent[44] + "</dt>";
+			document.getElementById('miscSectionLabel').textContent = textContent[45];
+			document.getElementById('miscTopic1').innerHTML = "<u>" + textContent[46] + "</u>";
+			document.getElementById('miscCertificationName3').textContent = textContent[47];
+			document.getElementById('miscTopic2').innerHTML = "<u>" + textContent[48] + "</u>";
+			document.getElementById('miscLanguageName1').innerHTML = "&nbsp;" + textContent[49];
+			document.getElementById('nativeLanguageLabel').textContent = textContent[50];
+			document.getElementById('miscLanguageName2').innerHTML = "&nbsp;" + textContent[51];
+			document.getElementById('fluentLabel').textContent = textContent[52];
+			document.getElementById('miscLanguageName3').innerHTML = "&nbsp;" + textContent[53];
+			document.getElementById('academicLabel').textContent = textContent[54];
+			document.getElementById('miscTopic3').innerHTML = "<u>" + textContent[55] + "</u>";
+			document.getElementById('miscInterestsName1').textContent = textContent[56];
+			document.getElementById('runningLabel').textContent = textContent[57];
+			document.getElementById('tennisLabel').textContent = textContent[58];
+			document.getElementById('miscInterestsName2').textContent = textContent[59];
+			document.getElementById('travelsLabel').textContent = textContent[60];
+			document.getElementById('miscInterestsName3').textContent = textContent[61];
+			document.getElementById('guitarLabel').textContent = textContent[62];
+			document.getElementById('workSphereLabel').textContent = textContent[63];
+			document.getElementById('degreeSphereLabel').textContent = textContent[20];
+			document.getElementById('skillsSphereLabel').textContent = textContent[64];
+			document.getElementById('miscSphereLabel').textContent = textContent[45];
+		}
+
+		var workSelected = false;
+		var degreeSelected = false;
+		var skillsSelected = false;
+		var miscSelected = false;
+		function onMouseMove(event) {
+			event.preventDefault();
+
+			mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+			mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+			rayCaster.setFromCamera(mouse, camera);
+
+			intersectWork = rayCaster.intersectObject(sphereWork, true);
+			intersectDegree = rayCaster.intersectObject(sphereDegree, true);
+			intersectSkills = rayCaster.intersectObject(sphereSkills, true);
+			intersectMisc = rayCaster.intersectObject(sphereMisc, true);
+			
+			if (intersectWork.length > 0 && !workSelected) {
+				displaySection( WORK_SECTION );
+				window.removeEventListener('mousemove', onMouseMove);
+				window.addEventListener('mousemove', function workLeaveWatcher(event) {
+					event.preventDefault();
+
+					mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+					mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+					rayCaster.setFromCamera(mouse, camera);
+
+					intersectWork = rayCaster.intersectObject(sphereWork, true);
+
+					if (intersectWork.length === 0) {
+						workSelected = false;
+						sphereWork.scale.set(1, 1, 1);
+						sphereMaterial.opacity = 1;
+						sphereWork.material = sphereMaterial;
+						for(var i = 0; i < linesSection.length; i++) scene.remove(linesSection[i]);
+						scene.remove(sectionPanel);
+						workDomObject.visible = false;
+						cssScene.add(infoDomObject);
+						cssScene.add(workLabelDomObject);
+						cssScene.add(degreeLabelDomObject);
+						cssScene.add(skillsLabelDomObject);
+						cssScene.add(miscLabelDomObject);
+						window.removeEventListener('mousemove', workLeaveWatcher)
+						window.addEventListener('mousemove', onMouseMove)
+					}
+				});
+			}
+			else if (intersectDegree.length > 0 && !degreeSelected) {
+				displaySection( DEGREE_SECTION );
+				window.removeEventListener('mousemove', onMouseMove);
+				window.addEventListener('mousemove', function degreeLeaveWatcher(event) {
+					event.preventDefault();
+
+					mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+					mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+					rayCaster.setFromCamera(mouse, camera);
+
+					intersectDegree = rayCaster.intersectObject(sphereDegree, true);
+
+					if (intersectDegree.length === 0) {
+						degreeSelected = false;
+						sphereDegree.scale.set(1, 1, 1);
+						sphereMaterial.opacity = 1;
+						sphereDegree.material = sphereMaterial;
+						for(var i = 0; i < linesSection.length; i++) scene.remove(linesSection[i]);
+						scene.remove(sectionPanel);
+						degreeDomObject.visible = false;
+						cssScene.add(infoDomObject);
+						cssScene.add(workLabelDomObject);
+						cssScene.add(degreeLabelDomObject);
+						cssScene.add(skillsLabelDomObject);
+						cssScene.add(miscLabelDomObject);
+						window.removeEventListener('mousemove', degreeLeaveWatcher)
+						window.addEventListener('mousemove', onMouseMove)
+					}
+				});
+			}
+			else if (intersectSkills.length > 0 && !skillsSelected) {
+				displaySection( SKILLS_SECTION );
+				window.removeEventListener('mousemove', onMouseMove);
+				window.addEventListener('mousemove', function skillsLeaveWatcher(event) {
+					event.preventDefault();
+
+					mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+					mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+					rayCaster.setFromCamera(mouse, camera);
+
+					intersectSkills = rayCaster.intersectObject(sphereSkills, true);
+
+					if (intersectSkills.length === 0) {
+						skillsSelected = false;
+						sphereSkills.scale.set(1, 1, 1);
+						sphereMaterial.opacity = 1;
+						sphereSkills.material = sphereMaterial;
+						for(var i = 0; i < linesSection.length; i++) scene.remove(linesSection[i]);
+						scene.remove(sectionPanel);
+						skillsDomObject.visible = false;
+						cssScene.add(infoDomObject);
+						cssScene.add(workLabelDomObject);
+						cssScene.add(degreeLabelDomObject);
+						cssScene.add(skillsLabelDomObject);
+						cssScene.add(miscLabelDomObject);
+						window.removeEventListener('mousemove', skillsLeaveWatcher)
+						window.addEventListener('mousemove', onMouseMove)
+					}
+				});
+			}
+			else if (intersectMisc.length > 0 && !miscSelected) {
+				displaySection( MISC_SECTION );
+				window.removeEventListener('mousemove', onMouseMove);
+				window.addEventListener('mousemove', function miscLeaveWatcher(event) {
+					event.preventDefault();
+
+					mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+					mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+					rayCaster.setFromCamera(mouse, camera);
+
+					intersectMisc = rayCaster.intersectObject(sphereMisc, true);
+
+					if (intersectMisc.length === 0) {
+						miscSelected = false;
+						sphereMisc.scale.set(1, 1, 1);
+						sphereMaterial.opacity = 1;
+						sphereMisc.material = sphereMaterial;
+						for(var i = 0; i < linesSection.length; i++) scene.remove(linesSection[i]);
+						scene.remove(sectionPanel);
+						miscDomObject.visible = false;
+						cssScene.add(infoDomObject);
+						cssScene.add(workLabelDomObject);
+						cssScene.add(degreeLabelDomObject);
+						cssScene.add(skillsLabelDomObject);
+						cssScene.add(miscLabelDomObject);
+						window.removeEventListener('mousemove', miscLeaveWatcher)
+						window.addEventListener('mousemove', onMouseMove)
+					}
+				});
+			}
+		}
+
+		function displaySection( sectionID )
+		{
+			sphereWork.position.y = sphereDegree.position.y = sphereSkills.position.y = sphereMisc.position.y = SPHERE_Y_LEVELS;
+			var targets = [];
+			switch( sectionID ) {
+				case WORK_SECTION :
+					workSelected = true;
+					sphereWork.scale.set(1.1, 1.1, 1.1);
+					sphereMaterial.opacity = 0.5;
+					sphereWork.material = sphereSelectedMaterial;
+
+					linesSection[0].geometry.attributes.position.array[0] = sphereWork.position.x;
+					linesSection[0].geometry.attributes.position.array[1] = SPHERE_Y_LEVELS;
+					linesSection[0].geometry.attributes.position.array[3] = sphereWork.position.x;
+					linesSection[0].geometry.attributes.position.array[4] = SPHERE_Y_LEVELS;
+					linesSection[1].geometry.attributes.position.array[0] = sphereDegree.position.x;
+					linesSection[1].geometry.attributes.position.array[1] = SPHERE_Y_LEVELS / 1.5;
+					linesSection[1].geometry.attributes.position.array[3] = sphereDegree.position.x;
+					linesSection[1].geometry.attributes.position.array[4] = SPHERE_Y_LEVELS / 1.5;
+					linesSection[2].geometry.attributes.position.array[0] = sphereDegree.position.x;
+					linesSection[2].geometry.attributes.position.array[1] = SPHERE_Y_LEVELS / 1.5;
+					linesSection[2].geometry.attributes.position.array[3] = sphereDegree.position.x;
+					linesSection[2].geometry.attributes.position.array[4] = SPHERE_Y_LEVELS / 1.5;
+					linesSection[0].geometry.attributes.position.needsUpdate = true;
+					linesSection[1].geometry.attributes.position.needsUpdate = true;
+					linesSection[2].geometry.attributes.position.needsUpdate = true;
+
+					targets.push( { x : sphereWork.position.x, y : SPHERE_Y_LEVELS, z : 0 } );
+					targets.push( { x : sphereDegree.position.x, y : SPHERE_Y_LEVELS / 1.5, z : 0 } );
+
+					targets.push( { x : sphereDegree.position.x, y : SPHERE_Y_LEVELS / 1.5, z : 0 } );
+					targets.push( { x : sphereWork.position.x - 100, y : SPHERE_Y_LEVELS / 1.5, z : 0 } );
+
+					targets.push( { x : sphereDegree.position.x, y : SPHERE_Y_LEVELS / 1.5, z : 0 } );
+					targets.push( { x : sphereMisc.position.x + 100, y : SPHERE_Y_LEVELS / 1.5, z : 0 } );
+					
+					workDomObject.visible = true;
+					break;
+				case DEGREE_SECTION :
+					degreeSelected = true;
+					sphereDegree.scale.set(1.1, 1.1, 1.1);
+					sphereMaterial.opacity = 0.5;
+					sphereDegree.material = sphereSelectedMaterial;
+
+					linesSection[0].geometry.attributes.position.array[0] = sphereDegree.position.x;
+					linesSection[0].geometry.attributes.position.array[1] = SPHERE_Y_LEVELS;
+					linesSection[0].geometry.attributes.position.array[3] = sphereDegree.position.x;
+					linesSection[0].geometry.attributes.position.array[4] = SPHERE_Y_LEVELS;
+					linesSection[1].geometry.attributes.position.array[0] = sphereDegree.position.x / 2;
+					linesSection[1].geometry.attributes.position.array[1] = SPHERE_Y_LEVELS / 1.5;
+					linesSection[1].geometry.attributes.position.array[3] = sphereDegree.position.x / 2;
+					linesSection[1].geometry.attributes.position.array[4] = SPHERE_Y_LEVELS / 1.5;
+					linesSection[2].geometry.attributes.position.array[0] = sphereDegree.position.x / 2;
+					linesSection[2].geometry.attributes.position.array[1] = SPHERE_Y_LEVELS / 1.5;
+					linesSection[2].geometry.attributes.position.array[3] = sphereDegree.position.x / 2;
+					linesSection[2].geometry.attributes.position.array[4] = SPHERE_Y_LEVELS / 1.5;
+					linesSection[0].geometry.attributes.position.needsUpdate = true;
+					linesSection[1].geometry.attributes.position.needsUpdate = true;
+					linesSection[2].geometry.attributes.position.needsUpdate = true;
+
+					targets.push( { x : sphereDegree.position.x, y : SPHERE_Y_LEVELS, z : 0 } );
+					targets.push( { x : sphereDegree.position.x / 2, y : SPHERE_Y_LEVELS / 1.5, z : 0 } );
+
+					targets.push( { x : sphereDegree.position.x / 2, y : SPHERE_Y_LEVELS / 1.5, z : 0 } );
+					targets.push( { x : sphereWork.position.x - 100, y : SPHERE_Y_LEVELS / 1.5, z : 0 } );
+
+					targets.push( { x : sphereDegree.position.x / 2, y : SPHERE_Y_LEVELS / 1.5, z : 0 } );
+					targets.push( { x : sphereMisc.position.x + 100, y : SPHERE_Y_LEVELS / 1.5, z : 0 } );
+					
+					degreeDomObject.visible = true;
+					break;
+				case SKILLS_SECTION :
+					skillsSelected = true;
+					sphereSkills.scale.set(1.1, 1.1, 1.1);
+					sphereMaterial.opacity = 0.5;
+					sphereSkills.material = sphereSelectedMaterial;
+
+					linesSection[0].geometry.attributes.position.array[0] = sphereSkills.position.x;
+					linesSection[0].geometry.attributes.position.array[1] = SPHERE_Y_LEVELS;
+					linesSection[0].geometry.attributes.position.array[3] = sphereSkills.position.x;
+					linesSection[0].geometry.attributes.position.array[4] = SPHERE_Y_LEVELS;
+					linesSection[1].geometry.attributes.position.array[0] = sphereSkills.position.x / 2;
+					linesSection[1].geometry.attributes.position.array[1] = SPHERE_Y_LEVELS / 1.5;
+					linesSection[1].geometry.attributes.position.array[3] = sphereSkills.position.x / 2;
+					linesSection[1].geometry.attributes.position.array[4] = SPHERE_Y_LEVELS / 1.5;
+					linesSection[2].geometry.attributes.position.array[0] = sphereSkills.position.x / 2;
+					linesSection[2].geometry.attributes.position.array[1] = SPHERE_Y_LEVELS / 1.5;
+					linesSection[2].geometry.attributes.position.array[3] = sphereSkills.position.x / 2;
+					linesSection[2].geometry.attributes.position.array[4] = SPHERE_Y_LEVELS / 1.5;
+					linesSection[0].geometry.attributes.position.needsUpdate = true;
+					linesSection[1].geometry.attributes.position.needsUpdate = true;
+					linesSection[2].geometry.attributes.position.needsUpdate = true;
+
+					targets.push( { x : sphereSkills.position.x, y : SPHERE_Y_LEVELS , z : 0 } );
+					targets.push( { x : sphereSkills.position.x / 2, y : SPHERE_Y_LEVELS / 1.5, z : 0 } );
+
+					targets.push( { x : sphereSkills.position.x / 2, y : SPHERE_Y_LEVELS / 1.5, z : 0 } );
+					targets.push( { x : sphereWork.position.x - 100, y : SPHERE_Y_LEVELS / 1.5, z : 0 } );
+
+					targets.push( { x : sphereSkills.position.x / 2, y : SPHERE_Y_LEVELS / 1.5, z : 0 } );
+					targets.push( { x : sphereMisc.position.x + 100, y : SPHERE_Y_LEVELS / 1.5, z : 0 } );
+					
+					skillsDomObject.visible = true;
+					break;
+				case MISC_SECTION :
+					miscSelected = true;
+					sphereMisc.scale.set(1.1, 1.1, 1.1);
+					sphereMaterial.opacity = 0.5;
+					sphereMisc.material = sphereSelectedMaterial;
+
+					linesSection[0].geometry.attributes.position.array[0] = sphereMisc.position.x;
+					linesSection[0].geometry.attributes.position.array[1] = SPHERE_Y_LEVELS;
+					linesSection[0].geometry.attributes.position.array[3] = sphereMisc.position.x;
+					linesSection[0].geometry.attributes.position.array[4] = SPHERE_Y_LEVELS;
+					linesSection[1].geometry.attributes.position.array[0] = sphereSkills.position.x;
+					linesSection[1].geometry.attributes.position.array[1] = SPHERE_Y_LEVELS / 1.5;
+					linesSection[1].geometry.attributes.position.array[3] = sphereSkills.position.x;
+					linesSection[1].geometry.attributes.position.array[4] = SPHERE_Y_LEVELS / 1.5;
+					linesSection[2].geometry.attributes.position.array[0] = sphereSkills.position.x;
+					linesSection[2].geometry.attributes.position.array[1] = SPHERE_Y_LEVELS / 1.5;
+					linesSection[2].geometry.attributes.position.array[3] = sphereSkills.position.x;
+					linesSection[2].geometry.attributes.position.array[4] = SPHERE_Y_LEVELS / 1.5;
+					linesSection[0].geometry.attributes.position.needsUpdate = true;
+					linesSection[1].geometry.attributes.position.needsUpdate = true;
+					linesSection[2].geometry.attributes.position.needsUpdate = true;
+
+					targets.push( { x : sphereMisc.position.x, y : SPHERE_Y_LEVELS, z : 0 } );
+					targets.push( { x : sphereSkills.position.x, y : SPHERE_Y_LEVELS / 1.5, z : 0 } );
+
+					targets.push( { x : sphereSkills.position.x, y : SPHERE_Y_LEVELS / 1.5, z : 0 } );
+					targets.push( { x : sphereWork.position.x - 100, y : SPHERE_Y_LEVELS / 1.5, z : 0 } );
+
+					targets.push( { x : sphereSkills.position.x, y : SPHERE_Y_LEVELS / 1.5, z : 0 } );
+					targets.push( { x : sphereMisc.position.x + 100, y : SPHERE_Y_LEVELS / 1.5, z : 0 } );
+					
+					miscDomObject.visible = true;
+					break;
+				default :
+					break;
+			}
+			linesSection[3].geometry.attributes.position.array[0] = sphereWork.position.x - 100;
+			linesSection[3].geometry.attributes.position.array[1] = SPHERE_Y_LEVELS / 1.5;
+			linesSection[3].geometry.attributes.position.array[3] = sphereWork.position.x - 100;
+			linesSection[3].geometry.attributes.position.array[4] = SPHERE_Y_LEVELS / 1.5;
+			linesSection[4].geometry.attributes.position.array[0] = sphereMisc.position.x + 100;
+			linesSection[4].geometry.attributes.position.array[1] = SPHERE_Y_LEVELS / 1.5;
+			linesSection[4].geometry.attributes.position.array[3] = sphereMisc.position.x + 100;
+			linesSection[4].geometry.attributes.position.array[4] = SPHERE_Y_LEVELS / 1.5;
+			linesSection[3].geometry.attributes.position.needsUpdate = true;
+			linesSection[4].geometry.attributes.position.needsUpdate = true;
+
+			targets.push(
+				{ x : sphereWork.position.x, y : SPHERE_Y_LEVELS / 1.5, z : 0 },
+				{ x : sphereWork.position.x - 150, y : SPHERE_Y_LEVELS / 1.5 + 50, z : 0 },
+				{ x : sphereMisc.position.x, y : SPHERE_Y_LEVELS / 1.5, z : 0 },
+				{ x : sphereMisc.position.x + 150, y : SPHERE_Y_LEVELS / 1.5 + 50, z : 0 }
+			);
+
+			var tweens = [];
+			tweens.push(new TWEEN.Tween(targets[0]).to(targets[1], 100));
+			tweens.push(new TWEEN.Tween(targets[2]).to(targets[3], 100));
+			tweens.push(new TWEEN.Tween(targets[4]).to(targets[5], 100));
+			tweens.push(new TWEEN.Tween(targets[6]).to(targets[7], 100));
+			tweens.push(new TWEEN.Tween(targets[8]).to(targets[9], 100));
+
+			tweens[0].chain(tweens[1], tweens[2]);
+			tweens[1].chain(tweens[3]);
+			tweens[2].chain(tweens[4]);
+
+			tweens[0].onUpdate(function(){
+				linesSection[0].geometry.attributes.position.array[3] = targets[0].x;
+				linesSection[0].geometry.attributes.position.array[4] = targets[0].y;
+				
+				linesSection[0].geometry.attributes.position.needsUpdate = true;
+			});
+			tweens[1].onUpdate(function(){
+				linesSection[1].geometry.attributes.position.array[3] = targets[2].x;
+				linesSection[1].geometry.attributes.position.array[4] = targets[2].y;
+
+				linesSection[1].geometry.attributes.position.needsUpdate = true;
+			});
+			tweens[2].onUpdate(function(){
+				linesSection[2].geometry.attributes.position.array[3] = targets[4].x;
+				linesSection[2].geometry.attributes.position.array[4] = targets[4].y;
+				
+				linesSection[2].geometry.attributes.position.needsUpdate = true;
+			});
+			tweens[3].onUpdate(function(){
+				linesSection[3].geometry.attributes.position.array[3] = targets[6].x;
+				linesSection[3].geometry.attributes.position.array[4] = targets[6].y;
+				
+				linesSection[3].geometry.attributes.position.needsUpdate = true;
+			});
+			tweens[4].onUpdate(function(){
+				linesSection[4].geometry.attributes.position.array[3] = targets[8].x;
+				linesSection[4].geometry.attributes.position.array[4] = targets[8].y;
+				
+				linesSection[4].geometry.attributes.position.needsUpdate = true;
+			});
+
+			tweens[0].start();
+			for(var i = 0; i < linesSection.length ; i++) scene.add(linesSection[i]);
+			scene.add(sectionPanel);
+			cssScene.remove(infoDomObject);
+			cssScene.remove(workLabelDomObject);
+			cssScene.remove(degreeLabelDomObject);
+			cssScene.remove(skillsLabelDomObject);
+			cssScene.remove(miscLabelDomObject);
+		}
+
+		function onWindowResize() {
+
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			cssRenderer.setSize( window.innerWidth, window.innerHeight );
+			composer.setSize( window.innerWidth, window.innerHeight );
+		}
+
+		function animate() {
+
+			requestAnimationFrame( animate );
+
+			var vertexpos = 0;
+			var colorpos = 0;
+			var numConnected = 0;
+
+			for ( var i = 0; i < particleCount; i ++ )
+				particlesData[ i ].numConnections = 0;
+
+			for ( var i = 0; i < particleCount; i ++ ) {
+
+				// get the particle
+				var particleData = particlesData[ i ];
+
+				particlePositions[ i * 3 ] += particleData.velocity.x;
+				particlePositions[ i * 3 + 1 ] += particleData.velocity.y;
+				particlePositions[ i * 3 + 2 ] += particleData.velocity.z;
+
+				if ( particlePositions[ i * 3 + 1 ] < - rHalf || particlePositions[ i * 3 + 1 ] > rHalf )
+					particleData.velocity.y = - particleData.velocity.y;
+
+				if ( particlePositions[ i * 3 ] < - rHalf || particlePositions[ i * 3 ] > rHalf )
+					particleData.velocity.x = - particleData.velocity.x;
+
+				if ( particlePositions[ i * 3 + 2 ] < - rHalf || particlePositions[ i * 3 + 2 ] > rHalf )
+					particleData.velocity.z = - particleData.velocity.z;
+
+				if ( effectController.limitConnections && particleData.numConnections >= effectController.maxConnections )
+					continue;
+
+				// Check collision
+				for ( var j = i + 1; j < particleCount; j ++ ) {
+
+					var particleDataB = particlesData[ j ];
+					if ( effectController.limitConnections && particleDataB.numConnections >= effectController.maxConnections )
+						continue;
+
+					var dx = particlePositions[ i * 3 ] - particlePositions[ j * 3 ];
+					var dy = particlePositions[ i * 3 + 1 ] - particlePositions[ j * 3 + 1 ];
+					var dz = particlePositions[ i * 3 + 2 ] - particlePositions[ j * 3 + 2 ];
+					var dist = Math.sqrt( dx * dx + dy * dy + dz * dz );
+
+					if ( dist < effectController.minDistance ) {
+
+						particleData.numConnections ++;
+						particleDataB.numConnections ++;
+
+						var alpha = 1.0 - dist / effectController.minDistance;
+
+						positions[ vertexpos ++ ] = particlePositions[ i * 3 ];
+						positions[ vertexpos ++ ] = particlePositions[ i * 3 + 1 ];
+						positions[ vertexpos ++ ] = particlePositions[ i * 3 + 2 ];
+
+						positions[ vertexpos ++ ] = particlePositions[ j * 3 ];
+						positions[ vertexpos ++ ] = particlePositions[ j * 3 + 1 ];
+						positions[ vertexpos ++ ] = particlePositions[ j * 3 + 2 ];
+
+						colors[ colorpos ++ ] = alpha;
+						colors[ colorpos ++ ] = alpha;
+						colors[ colorpos ++ ] = alpha;
+
+						colors[ colorpos ++ ] = alpha;
+						colors[ colorpos ++ ] = alpha;
+						colors[ colorpos ++ ] = alpha;
+
+						numConnected ++;
+
+					}
+
+				}
+
+			}
+
+
+			linesMesh.geometry.setDrawRange( 0, numConnected * 2 );
+			linesMesh.geometry.attributes.position.needsUpdate = true;
+			linesMesh.geometry.attributes.color.needsUpdate = true;
+
+			pointCloud.geometry.attributes.position.needsUpdate = true;
+
+			TWEEN.update();
+
+			render();
+		}
+
+		function render() {
+
+			var time = Date.now() * 0.001;
+
+			rotatingGroup.rotation.y = time * 0.1;
+
+			if (!(workSelected || degreeSelected || skillsSelected || miscSelected)) {
+				sphereWork.position.y += Math.sin(2*time);
+				sphereDegree.position.y += Math.sin(2*time);
+				sphereSkills.position.y += Math.sin(2*time);
+				sphereMisc.position.y += Math.sin(2*time);
+			}
+
+			/* for(var i = 0; i < linesSection.length; i++) linesSection[i].position.y += Math.sin(2*time);
+			
+			sectionPanel.position.y += Math.sin(2*time);
+
+			workDomObject.position.y += Math.sin(2*time);
+			degreeDomObject.position.y += Math.sin(2*time);
+			skillsDomObject.position.y += Math.sin(2*time);
+			miscDomObject.position.y += Math.sin(2*time); */
+
+			renderer.render( scene, camera );
+			cssRenderer.render( cssScene, camera );
+			renderer.clearDepth();
+			composer.render();
+
+		}
+
+		</script>
+
+	</body>
+</html>
