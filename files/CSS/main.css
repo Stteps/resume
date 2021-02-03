@@ -1,10 +1,28 @@
+/*GLOBAL CSS PROPERTIES*/
+/*Global properties*/
 body {
 	margin: 0;
 	color: white;
 	font-family : Calibri Light, Calibri, sans-serif;
 	overflow: hidden;
 }
+button {
+	cursor: pointer;
+	text-transform: uppercase;
+}
+canvas {
+	display: block;
+}
 
+/*Fonts*/
+@font-face {
+	font-family: "Calibri Light";
+	src: url("./files/fonts/calibril.ttf") format("ttf");
+}
+
+
+/*LOADER PROPERTIES*/
+/*Page Properties*/
 #loader
 {
 	z-index : 100;
@@ -22,6 +40,7 @@ body {
 	transition : opacity ease-out 0.5s;
 }
 
+/*Spinning wheel properties*/
 #load_symbol
 {
 	display : inline-block;
@@ -33,7 +52,6 @@ body {
 	border-radius: 50%;
     animation: spin 1000ms ease infinite;
 }
-
 @-moz-keyframes spin {
     to { -moz-transform: rotate(360deg); }
 }
@@ -44,78 +62,116 @@ body {
     to {transform:rotate(360deg);}
 }
 
-@font-face {
-	font-family: "Calibri Light";
-	src: url("./files/fonts/calibril.ttf") format("ttf");
-}
 
-@font-face {
-	font-family: "Calibri Light";
-	src: url("./files/fonts/calibril.ttf") format("ttf");
-}
-
-button {
-	cursor: pointer;
-	text-transform: uppercase;
-}
-
-canvas {
-	display: block;
-}
-
+/*MAIN INFORMATION PANEL PROPERTIES*/
+/*Headlines*/
 #headlines {
 	display : grid;
 	grid-row-gap: 1em;
 	grid-column-gap: 1em;
 }
-
 #mainPic{
-	border-radius : 50%;
 	position: relative;
 	left : 50%;
 	transform: translateX(-50%);
 	width : 25em;
 	height : 25em;
-	grid-row : 1;
-	grid-column : 1;
+	border-radius : 50%;
 	text-align : center;
 }
-
-#mainInformation{
-	grid-row : 1;
-	grid-column : 2;
-}
-
 #name{
 	font-size : 10em;
 	font-weight : bold;
 }
-
 #profileTitle{
 	font-size : 5em;
 	font-weight : bold;
 }
 
-#contactInformation {
-	font-size : 2.5em;
-	grid-row : 2;
-	grid-column : 1;
+/*Language buttons*/
+#languageButtons {
+	display : block;
+	position : relative;
+	font-size : 2em;
+	text-align : center;
+	top : 0em;
+	transition: top ease-out 0.1s;
+}
+.languageButton:hover {
+	font-weight: bold;
+	cursor : pointer;
+	top : -1em;
+}
+.languageFlags {
+	display : block;
+	position : relative;
+	left : 50%;
+	transform: translateX(-50%);
+	width : 2em;
+	height : 1.5em;
 }
 
+/*Links*/
+.links {
+	display : block;
+	position : relative;
+	top : 0em;
+	color : rgba(255, 255, 255, 0);
+	text-align: center;
+	transition : color ease-out 0.4s, top ease-out 0.1s;
+}
+.links:hover {
+	color: rgba(255, 255, 255, 1);
+	filter: invert(61%) sepia(98%) saturate(558%) hue-rotate(1deg) brightness(108%) contrast(105%);
+	top : -1em;
+}
+.linksIcon {
+	display : block;
+	position : relative;
+	width : 4em;
+	height : 4em;
+	left : 50%;
+	transform : translateX(-50%);
+	top : 0em;
+	transition: top ease-out 0.1s;
+}
+.linksIcon:hover {
+	cursor : pointer;
+}
+.linksLabel {
+	font-size : 1.5em;
+	font-weight: bold;
+}
+
+/*Additional Informations*/
+#contactInformation {
+	font-size : 2.5em;
+	grid-row : 3;
+	grid-column : 1;
+}
+.contactIcons {
+	float: left;
+	width : 1.2em;
+	height : 1.2em;
+}
 #profileDescription {
 	font-size : 2.5em;
-	grid-row : 2;
+	grid-row : 3;
 	grid-column : 2;
 	font-style : italic;
 	text-align : right;
 }
 
-.contactIcons {
-	width : 1em;
-	height : 1em;
-	filter : brightness(300%);
-}
 
+/*SECTION PANELS PROPERTIES*/
+/*Header*/
+.sectionIcon {
+	float : left;
+	width : 1.5em;
+	height : 1.5em;
+	transform : translateY(-10%);
+	filter : brightness(300%); 
+}
 .sectionHeader {
 	height : 1em;
 	font-size : 5em;
@@ -124,14 +180,7 @@ canvas {
 	padding-bottom : 0.3em;
 }
 
-.sectionIcon {
-	float : left;
-	width : 1.5em;
-	height : 1.5em;
-	transform : translateY(-10%);
-	filter : brightness(300%); 
-}
-
+/*Content*/
 .sectionContent {
 	position : absolute;
 	width : 110em;
@@ -141,136 +190,64 @@ canvas {
 	overflow : hidden;
 	padding: 2em;
 }
-
 .date {
 	text-align : right;
 	font-size : 2.5em;
 	padding-right : 0.5em;
 	line-height : 1; 
 }
-
-.job, .degree, .misc, .skillsCategory{
+.job, .degree, .misc, .skills{
 	padding-left : 1em;
 	border-left : 0.2em solid white;
 }
+.skillName, .miscName{
+	font-weight : bold;
+}
 
+/*Job Specific*/
 .positionName {
 	font-size: 3em;
 	font-weight : bold;
 }
-
 .companyCredentials {
 	font-size: 3em;
 }
-
 .jobDescription {
 	font-size: 2.25em;
 	line-height : 1;
 }
 
+/*Degree Specific*/
 .degreeName {
 	font-size: 3.25em;
 	font-weight : bold;
 }
-
 .schoolCredentials {
 	font-size: 3.25em;
 }
-
 .degreeDescription {
 	font-size: 2.75em;
 }
 
+/*Skills specific*/
 .levelsLegend {
 	float : right;
 	padding-top : 1em;
 	font-size : 0.4em;
 }
-
 .skillsTopic {
 	font-size: 2.5em;
 	font-weight: bold;
 }
-
 .skillsDescription {
 	font-size: 2.1em;
 }
 
-.skillName, .miscName{
-	font-weight : bold;
-}
-
+/*Misc specific*/
 .miscTopic {
 	font-size: 3em;
 	font-weight: bold;
 }
-
 .miscDescription {
 	font-size: 2.5em;
-}
-
-.languageFlag {
-	position : relative;
-	float : left;
-	height : 1em;
-	width : 2em;
-}
-
-#languageButtons {
-	width : 100%;
-	height : 5%;
-	font-size : 1.25em;
-	text-align : center;
-}
-
-.languageFlags {
-	width : 1.5em;
-	height : 0.75em;
-}
-
-.languageButton:hover {
-	font-weight: bold;
-	cursor : pointer;
-}
-
-#socialMediaButtons {
-	display : block;
-	width : 4%;
-	left : -1%;
-	top : 50%;
-	transform: translateY(-50%);
-	border-radius : 10%;
-}
-
-.socialMediaIcons {
-	float : right;
-	width : 2.5em;
-	height : 2.5em;
-	filter : brightness(300%); 
-}
-
-.socialMediaIcons:hover {
-	cursor : pointer;
-	filter : invert(80%) sepia(45%) saturate(2257%) hue-rotate(351deg) brightness(93%) contrast(82%);
-}
-
-#techPlatformsButtons {
-	display : block;
-	width : 4%;
-	right : -1%;
-	top : 50%;
-	transform: translateY(-50%);
-	border-radius : 10%;
-}
-
-.techPlatformsIcons {
-	float : left;
-	width : 2.5em;
-	height : 2.5em;
-	filter : brightness(300%); 
-}
-
-.techPlatformsIcons:hover {
-	cursor : pointer;
-	filter : invert(80%) sepia(45%) saturate(2257%) hue-rotate(351deg) brightness(93%) contrast(82%);
 }
