@@ -12,37 +12,6 @@
 			<div id = "load_symbol"></div>
 		</div>
 		<div id = "container" style = "position : absolute; z-index : 1;"></div>
-		<div id = 'languageButtons' style = "position : absolute; z-index : 2; display : none;">
-			<span id = 'langLabel'>LANGUE</span>&nbsp;:&emsp;
-			<span class = 'languageButton' id = 'frenchButton'>
-				<img class = 'languageFlags' src = './files/pictures/france.png'>&nbsp;<span id = 'frenchLabel'>Français</span>&emsp;
-			</span>
-			<span class = 'languageButton' id = 'englishButton'>
-				<img class = 'languageFlags' src = './files/pictures/uk.png'>&nbsp;<span id = 'englishLabel'>Anglais</span>
-			</span>
-		</div>
-		<div id = 'socialMediaButtons' style = "position : absolute; z-index : 2; display : none;">
-			<a href = 'https://www.linkedin.com/in/stephanepetiot/'>
-				<img class = 'socialMediaIcons' src = './files/pictures/linkedIn_logo.png'>
-			</a>
-			<a href = 'https://viadeo.journaldunet.com/p/stephane-petiot-6751312'>
-				<img class = 'socialMediaIcons' src = './files/pictures/viadeo_logo.png'>
-			</a>
-			<a href = 'https://my.indeed.com/p/stphanep-q2khg7a'>
-				<img class = 'socialMediaIcons' src = './files/pictures/indeed_logo.png'>
-			</a>
-		</div>
-		<div id = 'techPlatformsButtons' style = "position : absolute; z-index : 2; display : none;">
-			<a href = 'https://www.kaggle.com/stphanepetiot'>
-				<img class = 'techPlatformsIcons' src = './files/pictures/kaggle_logo.png'>
-			</a>
-			<a href = 'https://github.com/StephanePetiot'>
-				<img class = 'techPlatformsIcons' src = './files/pictures/github_logo.png'>
-			</a>
-			<a href = 'https://stackoverflow.com/users/14735969/st%c3%a9phane-petiot'>
-				<img class = 'techPlatformsIcons' src = './files/pictures/stackoverflow_logo.png'>
-			</a>
-		</div>
 	
 	<script type = 'text/javascript' src = './files/Scripts/Tween.js'></script>
 	<script type = 'module'>
@@ -99,12 +68,10 @@
 
 		var infoDomObject, workDomObject, degreeDomObject, skillsDomObject, miscDomObject;
 		var workLabelDomObject, degreeLabelDomObject, skillsLabelDomObject, miscLabelDomObject;
-
-		var frenchTextContent = [];
-		var englishTextContent = [];
 		
 		var frenchButton, englishButton;
-		var frenchTextContent = [
+		var frenchTextContent =
+			[
 				"LANGUE",
 				"Français",
 				"Anglais",
@@ -171,13 +138,14 @@
 				"EXPERIENCE",
 				"COMPETENCES"
 			];
-			englishTextContent = [
+		var englishTextContent =
+			[
 				"LANGUAGE",
 				"French",
 				"English",
 				"Data & Machine Learning Engineer",
 				"I am qualified in Data Sciences, with a strong interest in Machine Learning",
-				"I am also proficient in Software and Web development",
+				"I am also proficient in Software applications and Web development",
 				"WORK EXPERIENCE",
 				"February",
 				"June",
@@ -379,7 +347,6 @@
 			scene.add( sphereMisc );
 
 			// Lignes support section
-
 			material = new THREE.LineBasicMaterial({ color: 0xffffff });
 			linesSection = [
 				new THREE.Line(
@@ -458,39 +425,65 @@
 
 			//EVENTS
 			window.addEventListener('mousemove', onMouseMove, false);
-			document.getElementById('frenchButton').addEventListener('click', function() {
-				document.getElementById('langLabel').textContent = frenchTextContent[0];
-				document.getElementById('frenchLabel').textContent = frenchTextContent[1];
-				document.getElementById('englishLabel').textContent = frenchTextContent[2];
-				changeLanguage( FRENCH );
-			}, false);
-			document.getElementById('englishButton').addEventListener('click', function() {
-				document.getElementById('langLabel').textContent = englishTextContent[0];
-				document.getElementById('frenchLabel').textContent = englishTextContent[1];
-				document.getElementById('englishLabel').textContent = englishTextContent[2];
-				changeLanguage( ENGLISH );
-			}, false);
 
 			//3D HTML CONTENT
 			var infoElement = document.createElement('div');
 
 			infoElement.innerHTML += 
-				"<div id = 'headlines'>"
-					+ "<img id = 'mainPic' src = './files/pictures/stef.jpg'>"
-					+ "<div id = 'mainInformation'>"
-						+ "<span id = 'name'>Stéphane Petiot</span></br>"
-						+ "<span id = 'profileTitle'>Ingénieur Data & Machine Learning</span>"
+				"<div id = 'headlines' style = 'display : grid;'>"
+					+ "<div style = 'grid-row : 1; grid-column : 1;'>"
+						+ "<img id = 'mainPic' src = './files/pictures/stef.jpg'>"
+					+ "</div>"
+					+ "<div style = 'grid-row : 2; grid-colum : 1;'>"
+						+ "<div id = 'languageButtons' style = 'display : grid;'>"
+							+ "<span class = 'languageButton' id = 'frenchButton' style = 'grid-row : 1; grid-colum : 1;'>"
+								+ "<img class = 'languageFlags' src = './files/pictures/france.png'>"
+								+ "<span class = 'languageLabels' id = 'frenchLabel'>Français</span>"
+							+ "</span>"
+							+ "<span class = 'languageButton' id = 'englishButton' style = 'grid-row : 1; grid-colum : 2;'>"
+								+ "<img class = 'languageFlags' src = './files/pictures/uk.png'>"
+								+ "<span class = 'languageLabels' id = 'englishLabel'>English</span>"
+							+ "</span>"
+						+ "</div>"
+					+ "</div>"
+					+ "<div id = 'mainInformation' style = 'grid-row : 1; grid-column : 2;'>"
+						+ "<div id = 'name'>Stéphane Petiot</div>"
+						+ "<div id = 'profileTitle'>Ingénieur Data & Machine Learning</div>"
+					+ "</div>"
+					+ "<div style = 'display : grid'>"
+						+ "<div class = 'links' style = 'grid-column : 1;'>"
+							+ "<a href = 'https://www.linkedin.com/in/stephanepetiot/'><img class = 'linksIcon' src = './files/pictures/linkedIn_logo.png'></a>"
+							+ "<span class = 'linksLabel' id = 'linkedInLabel'>LinkedIn</span>"
+						+ "</div>"
+						+ "<div class = 'links' style = 'grid-column : 2;'>"
+							+ "<a href = 'https://viadeo.journaldunet.com/p/stephane-petiot-6751312' style = 'grid-column : 2;'><img class = 'linksIcon' src = './files/pictures/viadeo_logo.png'></a>"
+							+ "<span class = 'linksLabel' id = 'viadeoLabel'>Viadeo</span>"
+						+ "</div>"
+						+ "<div class = 'links' style = 'grid-column : 3;'>"
+							+ "<a href = 'https://my.indeed.com/p/stphanep-q2khg7a' style = 'grid-column : 3;'><img class = 'linksIcon' src = './files/pictures/indeed_logo.png'></a>"
+							+ "<span class = 'linksLabel' id = 'indeedLabel'>Indeed</span>"
+						+ "</div>"
+						+ "<div class = 'links' style = 'grid-column : 4;'>"
+							+ "<a href = 'https://www.kaggle.com/stphanepetiot' style = 'grid-column : 4;'><img class = 'linksIcon' src = './files/pictures/kaggle_logo.png'></a>"
+							+ "<span class = 'linksLabel' id = 'kaggleLabel'>Kaggle</span>"
+						+ "</div>"
+						+ "<div class = 'links' style = 'grid-column : 5;'>"
+							+ "<a href = 'https://github.com/StephanePetiot' style = 'grid-column : 5;'><img class = 'linksIcon' src = './files/pictures/github_logo.png'></a>"
+							+ "<span class = 'linksLabel' id = 'gitHubLabel'>GitHub</span>"
+						+ "</div>"
+						+ "<div class = 'links' style = 'grid-column : 6;'>"
+							+ "<a href = 'https://stackoverflow.com/users/14735969/st%c3%a9phane-petiot' style = 'grid-column : 6;'><img class = 'linksIcon' src = './files/pictures/stackoverflow_logo.png'></a>"
+							+ "<span class = 'linksLabel' id = 'stackOverflowLabel'>StackOverflow</span>"
+						+ "</div>"
 					+ "</div>"
 					+ "<div id = 'profileDescription'>"
 						+ "Mon profil est axé autour des Data Sciences, avec une spécialisation en Machine Learning.</br>"
 						+ "Je possède également des compétences intermédiaires en développement logiciel et en Web."
 					+ "</div>"
-					+ "<div id = 'contactInformation'>"
-						+ "<img class = 'contactIcons' src = './files/pictures/mail.png'>&nbsp;stephane.petiot@hotmail.fr</br>"
-						+ "<img class = 'contactIcons' src = './files/pictures/phone.png'>&nbsp;+33 6 67 22 57 50</br>"
-						+ "<img class = 'contactIcons' src = './files/pictures/location.png'>&nbsp;"
-							+ "Cagnes-sur-Mer, Alpes-Maritimes,</br>"
-							+ "&emsp;&nbsp;France"
+					+ "<div id = 'contactInformation' style = 'display : grid;'>"
+						+ "<span style = 'grid-row : 1;'><img class = 'contactIcons' src = './files/pictures/mail.png'>&nbsp;stephane.petiot@hotmail.fr</span>"
+						+ "<span style = 'grid-row : 2;'><img class = 'contactIcons' src = './files/pictures/phone.png'>&nbsp;+33 6 67 22 57 50</span>"
+						+ "<span style = 'grid-row : 3;'><img class = 'contactIcons' src = './files/pictures/location.png'>&nbsp;Cagnes-sur-Mer, Alpes-Maritimes, France</span>"
 					+ "</div>"
 				+ "</div>"
 			infoElement.style.position = 'absolute';
@@ -501,10 +494,14 @@
 
 			infoDomObject = new CSS3DObject( infoElement );
 			cssScene.add(infoDomObject);
+			
+			infoElement.getElementsByClassName('languageButton')[0].addEventListener('click', () => {changeLanguage( FRENCH )});
+			infoElement.getElementsByClassName('languageButton')[1].addEventListener('click', () => {changeLanguage( ENGLISH )});
+			// infoElement.getElementsByClassName('linksLabel')[0].addEventListener('onmouseenter', () => {document.getElementById('linkedInLabel').style.opacity = 1;});
 
 			var workElement = document.createElement( 'div' );
 
-			workElement.innerHTML +=
+			workElement.innerHTML += 
 			"<div class = 'sectionHeader'>"
 				+ "<img class = 'sectionIcon' src = './files/pictures/workexperience.png'>"
 				+ "<span id = 'workSectionLabel'>EXPERIENCE PROFESSIONNELLE</span>"
@@ -549,7 +546,7 @@
 						+ "<span style = ' font-weight : bold; '>Technologies</span> : C++, Qt, STM32, mbed"
 					+ "</span>"
 				+ "</div>"
-			+ "</div>"			
+			+ "</div>"
 			workElement.style.position = 'absolute';
 			workElement.style.top = '9em'
 			workElement.style.width = '110em';
@@ -629,7 +626,7 @@
 					+ "</span>"
 				+ "</div>"
 				+ "<div class = 'sectionContent'>"
-					+ "<div class = 'skillsCategory' style = ' grid-column: 1; grid-row-start: 1; grid-row-end: 4; '>"
+					+ "<div class = 'skills' style = ' grid-column: 1; grid-row-start: 1; grid-row-end: 4; '>"
 						+ "<span class = 'skillsTopic' id = 'skillsTopic1'><u>Langages/Frameworks</u></span>"
 						+ "<dl class = 'skillsDescription' style = ' display : grid; grid-row-gap : 0.5em; '>"
 							+ "<span style = 'grid-column : 1; grid-row : 1'>"
@@ -673,14 +670,14 @@
 							+ "</span>"
 						+ "</dl>"
 					+ "</div>"
-					+ "<div class = 'skillsCategory' style = ' grid-column: 2; grid-row: 3; '>"
+					+ "<div class = 'skills' style = ' grid-column: 2; grid-row: 3; '>"
 						+ "<span class = 'skillsTopic'><u>OS</u></span>"
 						+ "<dl class = 'skillsDescription'>"
 							+ "<dt>Windows " + orangeDotHtml + "</dt>"
 							+ "<dt>Linux " + orangeDotHtml + "</dt>"
 						+ "</dl>"
 					+ "</div>"
-					+ "<div class = 'skillsCategory' style = ' grid-column: 2; grid-row-start: 1; grid-row-end: 3; '>"
+					+ "<div class = 'skills' style = ' grid-column: 2; grid-row-start: 1; grid-row-end: 3; '>"
 						+ "<span class = 'skillsTopic' id = 'skillsTopic3'><u>Outils</u></span>"
 						+ "<dl class = 'skillsDescription'>"
 							+ "<dt>MatLab " + greenDotHtml + "</dt>"
@@ -694,13 +691,13 @@
 							+ "<dt>Jira " + orangeDotHtml + "</dd>"
 						+ "</dl>"
 					+ "</div>"
-					+ "<div class = 'skillsCategory' style = ' grid-column: 3; grid-row: 2; '>"
+					+ "<div class = 'skills' style = ' grid-column: 3; grid-row: 2; '>"
 						+ "<span class = 'skillsTopic' id = 'skillsTopic4'><u>Methodes</u></span>"
 						+ "<dl class = 'skillsDescription'>"
 							+ "<dt>Scrum " + orangeDotHtml + "</dt>"
 						+ "</dl>"
 					+ "</div>"
-					+ "<div class = 'skillsCategory' style = ' grid-column: 3; grid-row: 1; '>"
+					+ "<div class = 'skills' style = ' grid-column: 3; grid-row: 1; '>"
 						+ "<span class = 'skillsTopic' id = 'skillsTopic5'><u>Connaissances du secteur</u></span>"
 						+ "<dl class = 'skillsDescription' id = 'skillsDescription5'>"
 							+ "<dt>Défense sous-marine " + orangeDotHtml + "</dt>"
@@ -708,7 +705,7 @@
 							+ "<dt>Semi-conducteur " + orangeredDotHtml + "</dt>"
 						+ "</dl>"
 					+ "</div>"
-					+ "<div class = 'skillsCategory' style = ' grid-column: 3; grid-row: 3; '>"
+					+ "<div class = 'skills' style = ' grid-column: 3; grid-row: 3; '>"
 						+ "<span class = 'skillsTopic' id = 'skillsTopic6'><u>Autres compétences</u></span>"
 						+ "<dl class = 'skillsDescription' id = 'skillsDescription6'>"
 							+ "<dt>Communication orale et écrite français / anglais</dt>"
@@ -830,10 +827,6 @@
 			miscLabelDomObject = new CSS3DObject( miscElementLabel );
 			miscLabelDomObject.position.set(sphereMisc.position.x, SPHERE_Y_LEVELS + 125, 0);
 			cssScene.add( miscLabelDomObject );
-
-			document.getElementById('languageButtons').style.display = 'block';
-			document.getElementById('socialMediaButtons').style.display = 'block';
-			document.getElementById('techPlatformsButtons').style.display = 'block';
 
 			document.getElementById("loader").style.opacity = 0;
 			setTimeout(function(){document.getElementById("loader").style.display = "none";}, 1750);
@@ -1356,13 +1349,9 @@
 						colors[ colorpos ++ ] = alpha;
 
 						numConnected ++;
-
 					}
-
 				}
-
 			}
-
 
 			linesMesh.geometry.setDrawRange( 0, numConnected * 2 );
 			linesMesh.geometry.attributes.position.needsUpdate = true;
