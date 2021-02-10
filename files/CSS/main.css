@@ -79,7 +79,7 @@ canvas {
 	border-radius : 50%;
 	text-align : center;
 }
-#name{
+#profileName{
 	font-size : 10em;
 	font-weight : bold;
 }
@@ -163,7 +163,50 @@ canvas {
 	font-style : italic;
 	text-align : right;
 }
+#emailAddress:hover {
+	cursor : pointer;
+	font-weight: bold;
+	color :rgb(211, 123, 0);
+}
 
+/*EMAIL FORM PROPERTIES*/
+#contactTitle, #contactForm, .emailFormLabel, .emailFormInput , #submitButton{
+	display : block;
+	border : 0px;
+}
+#contactTitle {
+	font-size : 7em;
+	font-weight : bold;
+}
+.emailFormLabel {
+	font-size : 2.5em;
+}
+.emailFormInput {
+	width : 100%;
+	font-size : 2.5em;
+	background : rgba(255, 255, 255, 0.1);
+	font-family: "Calibri Light";
+}
+#message {
+	width : 100%;
+	height : 6em;
+	font-size : 2.5em;
+	background : rgba(255, 255, 255, 0.1);
+	font-family: "Calibri Light";
+	border : 0px;
+}
+#submitButton {
+	color : white;
+	font-family: "Calibri Light";
+	font-weight : bold;
+	margin-top : 1em;
+	width : 100%;
+	background : rgba(255, 255, 255, 0.1);
+	font-size : 2.5em;
+}
+#submitButton:hover {
+	background : rgba(255, 255, 255, 0.2);
+}
 
 /*SECTION PANELS PROPERTIES*/
 /*Header*/
