@@ -337,12 +337,12 @@
 				infoElement.getElementsByClassName('emailAddress')[0].addEventListener('click', () => {
 					displayEmailForm();
 				});
-				console.log(infoElement.getElementsByClassName('closeCross')[0]);
+				console.log(emailFormElement.getElementsByClassName('closeCross')[0]);
 				emailFormElement.getElementsByClassName('closeCross')[0].addEventListener('click', () => {
 					emailFormDomObject.visible = false;
 					infoDomObject.visible = true;
 				});
-				console.log(infoElement.getElementsByClassName('submitButton')[0]);
+				console.log(emailFormElement.getElementsByClassName('submitButton')[0]);
 				emailFormElement.getElementsByClassName('submitButton')[0].addEventListener('click', () => {
 					Email.send({
 						SecurityToken : "0e48661a-b038-4f72-be43-3388673a9df8",
