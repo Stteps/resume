@@ -311,10 +311,11 @@
 
 				emailFormElement.innerHTML = emailFormSketch;
 				emailFormElement.style.position = 'absolute';
-				emailFormElement.style.top = '5em'
+				emailFormElement.style.top = '8em'
 				emailFormElement.style.width = '110em';
 				emailFormElement.style.height = '53em';
 				emailFormElement.style.fontFamily = 'Calibri Light, Calibri, sans-serif';
+				emailFormElement.style.zIndex = 1000;
 
 				infoDomObject = new CSS3DObject( infoElement );
 				emailFormDomObject = new CSS3DObject( emailFormElement );
@@ -335,6 +336,21 @@
 				console.log(infoElement.getElementsByClassName('emailAddress')[0]);
 				infoElement.getElementsByClassName('emailAddress')[0].addEventListener('click', () => {
 					displayEmailForm();
+				});
+				emailFormElement.getElementsByClassName('closeCross')[0].addEventListener('click', () => {
+					emailFormDomObject.visible = false;
+					infoDomObject.visible = true;
+				});
+				emailFormElement.getElementsByClassName('submitButton')[0].addEventListener('click', () => {
+					Email.send({
+						SecurityToken : "0e48661a-b038-4f72-be43-3388673a9df8",
+						To : 'stephane.petiot@hotmail.fr',
+						From : "stephane.petiot@hotmail.fr",
+						Subject : "TEST",
+						Body : "TEST"
+					}).then(
+					message => alert(message)
+					);
 				});
 
 				var workElement = document.createElement( 'div' );
