@@ -333,19 +333,20 @@
 					infoElement.getElementsByClassName('languageButton')[ ENGLISH ].style.fontWeight = 'bold';
 					infoElement.getElementsByClassName('languageButton')[ FRENCH ].style.fontWeight = 'normal';
 				});
-				console.log(infoElement.getElementsByClassName('emailAddress')[0]);
+				//console.log(infoElement.getElementsByClassName('emailAddress')[0]);
 				infoElement.getElementsByClassName('emailAddress')[0].addEventListener('click', () => {
 					displayEmailForm();
 				});
-				console.log(emailFormElement.getElementsByClassName('closeCross')[0]);
+				//console.log(emailFormElement.getElementsByClassName('closeCross')[0]);
 				emailFormElement.getElementsByClassName('closeCross')[0].addEventListener('click', () => {
 					emailFormDomObject.visible = false;
 					infoDomObject.visible = true;
 				});
-				console.log(emailFormElement.getElementsByClassName('submitButton')[0]);
-				emailFormElement.getElementsByClassName('submitButton')[0].addEventListener('click', () => {
+				//console.log(emailFormElement.getElementsByClassName('submitButton')[0]);
+				emailFormElement.getElementsByClassName('submitButton')[0].addEventListener('click', function(event) {
+					event.preventDefault();
 					Email.send({
-						SecurityToken : "0e48661a-b038-4f72-be43-3388673a9df8",
+						SecureToken : "a0a26d4b-2eff-451b-9d67-9009a9712655",
 						To : 'stephane.petiot@hotmail.fr',
 						From : "stephane.petiot@hotmail.fr",
 						Subject : "TEST",

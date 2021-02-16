@@ -211,7 +211,7 @@ canvas {
 #message:focus {
 	border: 3px solid white;
 }
-#submitButton {
+.submitButton {
 	color : white;
 	font-family: "Calibri Light";
 	font-weight : bold;
@@ -220,7 +220,7 @@ canvas {
 	background : rgba(255, 255, 255, 0.1);
 	font-size : 2.5em;
 }
-#submitButton:hover {
+.submitButton:hover {
 	background : rgba(255, 255, 255, 0.2);
 }
 
