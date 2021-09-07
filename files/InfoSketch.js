@@ -50,7 +50,7 @@ let infoSketch = `
         </div>
         <div id = 'contactInformation' style = 'display : grid;'>
             <span class = 'emailAddress' style = 'grid-row : 1;'><img class = 'contactIcons' src = './files/pictures/mail.png'>&nbsp;stephane.petiot@hotmail.fr</span>
-            <span style = 'grid-row : 2;'><img class = 'contactIcons' src = './files/pictures/phone.png'>&nbsp;+33 6 67 22 57 50</span>
+            <!-- <span style = 'grid-row : 2;'><img class = 'contactIcons' src = './files/pictures/phone.png'>&nbsp;+33 6 67 22 57 50</span> -->
             <span style = 'grid-row : 3;'><img class = 'contactIcons' src = './files/pictures/location.png'>&nbsp;Cagnes-sur-Mer, Alpes-Maritimes, France</span>
         </div>
     </div>
