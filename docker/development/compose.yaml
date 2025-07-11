@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  app:
+    image: webpack
+    restart: unless-stopped
+    container_name: webpack
+    build: 
+      context: ../../
+      dockerfile: ./docker/development/app/Dockerfile
+    ports:
+      - 8080:8080
+    volumes:
+      - ../../app:/app

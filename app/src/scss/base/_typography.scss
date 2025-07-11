@@ -1,0 +1,32 @@
+// -----------------------------------------------------------------------------
+// This file contains global typographic rules
+// -----------------------------------------------------------------------------
+
+body {
+  font-family: "Funnel Display Regular";
+  font-size: 1.25rem;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+  white-space: normal;
+  hyphens: auto;
+  color: $light;
+  text-shadow: 2px 2px 2px $dark;
+}
+
+h1 {
+  font-family: "Funnel Display Light";
+}
+
+h2,
+h3 {
+  font-family: "Funnel Display Bold";
+}
+
+a {
+  text-decoration: none;
+}
+
+.list-styled li {
+  list-style: square;
+}
