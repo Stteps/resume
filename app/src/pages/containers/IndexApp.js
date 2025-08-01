@@ -414,11 +414,6 @@ const IndexApp = () => {
       composer.setSize(mountRef.current.clientWidth, mountRef.current.clientHeight);
     };
 
-    const onWindowLoad = () => {
-      $("#loader").css("opacity", 0);
-      $("#loader").css("z-index", 0);
-    };
-
     const resetView = () => {
       controls.reset();
     };
@@ -427,7 +422,6 @@ const IndexApp = () => {
     window.addEventListener('mousemove', onMouseMove, false);
     window.addEventListener('mousedown', onMouseDown, false);
     window.addEventListener('resize', onWindowResize, false);
-    window.addEventListener('load', onWindowLoad, false);
     document.getElementById("reset-view-button").addEventListener('mousedown', resetView);
     $(".lang-button").on('mousedown', handleLanguageToggle);
 
@@ -592,6 +586,10 @@ const IndexApp = () => {
 
     hidePanel(0);
     animate();
+
+
+    $("#loader").css("opacity", 0);
+    $("#loader").css("z-index", 0);
 
     // Clean up on unmount
     return () => {
