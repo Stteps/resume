@@ -1,0 +1,20 @@
+{
+    "Frameworks": "Frameworks",
+    "Languages": "Languages",
+    "Styling": "Styling",
+    "Dataviz-3D": "Dataviz/3D",
+    "Databases": "Databases",
+    "Servers": "Servers",
+    "Deployment-Build": "Deployment/Build",
+    "Hosting-Cloud": "Hosting/Cloud",
+    "Gamedev": "Gamedev",
+    "OS": "OS",
+    "IDEs": "IDEs",
+    "Frontend": "Frontend",
+    "Backend": "Backend",
+    "Miscellaneous": "Miscellaneous",
+    "March": "March",
+    "February": "February",
+    "June": "June",
+    "Present": "Present"
+}

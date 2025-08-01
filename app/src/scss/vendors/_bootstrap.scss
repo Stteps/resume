@@ -2,7 +2,13 @@
 // This file contains global bootstrap imports
 // -----------------------------------------------------------------------------
 
+@use "../abstracts/variables" as *;
+
+// TODO: Bootstrap 5 still use deprecated @import syntax, might be fixed in v6
 @import "~bootstrap/scss/functions";
+
+$primary: $primary-color;
+
 @import "~bootstrap/scss/variables";
 @import "~bootstrap/scss/variables-dark";
 @import "~bootstrap/scss/maps";

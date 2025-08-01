@@ -1,5 +1,8 @@
 import React, { useRef, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import * as THREE from 'three';
+import { STLLoader } from 'three/examples/jsm/loaders/STLLoader';
+import { MeshSurfaceSampler } from 'three/examples/jsm/math/MeshSurfaceSampler.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { CSS3DRenderer, CSS3DObject } from 'three/addons/renderers/CSS3DRenderer.js';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
@@ -7,18 +10,26 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { gsap } from "gsap";
 
+import i18n from '../i18n';
 import { subdivideSegments } from '../utils';
 import MainPanel from '../components/MainPanel/MainPanel';
 import WorkPanel from '../components/WorkPanel/WorkPanel';
 import EducationPanel from '../components/EducationPanel/EducationPanel';
 import SkillsPanel from '../components/SkillsPanel/SkillsPanel';
-import MiscellaneousPanel from '../components/MiscellaneousPanel/MiscellaneousPanel';
+import PortfolioPanel from '../components/PortfolioPanel/PortfolioPanel';
 
-import background from "~/assets/images/background_1.jpg";
-import workIcon from "~/assets/icons/work.png";
-import educationIcon from "~/assets/icons/education.png";
-import skillsIcon from "~/assets/icons/skills.png";
-import miscellaneousIcon from "~/assets/icons/miscellaneous.png";
+import background from "~/assets/images/background.jpg";
+import workIcon from "~/assets/images/work.jpg";
+import educationIcon from "~/assets/images/education.jpg";
+import skillsIcon from "~/assets/images/skills.jpg";
+import portfolioIcon from "~/assets/images/portfolio.jpg";
+import frIcon from "~/assets/icons/fr.svg";
+import enIcon from "~/assets/icons/en.svg";
+
+import workMeshData from "~/assets/meshes/work.stl";
+import educationMeshData from "~/assets/meshes/education.stl";
+import skillsMeshData from "~/assets/meshes/skills.stl";
+import portfolioMeshData from "~/assets/meshes/portfolio.stl";
 
 
 const SPHERE_Y_LEVELS = -500, SPHERE_ORBITING_RADIUS = 500;
@@ -26,7 +37,7 @@ const SECTIONS = {
   WORK: 0,
   EDUCATION: 1,
   SKILLS: 2,
-  MISCELLANEOUS: 3
+  PORTFOLIO: 3
 };
 
 
@@ -42,6 +53,7 @@ var camera;
 var controls;
 
 const loader = new THREE.TextureLoader();
+const stlLoader = new STLLoader();
 
 // Mouse Manager
 const rayCaster = new THREE.Raycaster();
@@ -89,11 +101,26 @@ for (let i = 0; i < maxParticleCount; i++) {
   });
 }
 
+const workMeshTargets = new Float32Array(maxParticleCount * 3);
+const educationMeshTargets = new Float32Array(maxParticleCount * 3);
+const skillsMeshTargets = new Float32Array(maxParticleCount * 3);
+const portfolioMeshTargets = new Float32Array(maxParticleCount * 3);
+
+const tl = gsap.timeline();
+
 const IndexApp = () => {
+  const { t } = useTranslation(["common", "glossary", "Index/IndexApp"]);
+
+  const [hoveredSection, setHoveredSection] = useState();
   const [selectedSection, setSelectedSection] = useState();
 
+  const hoveredSectionRef = useRef();
   const selectedSectionRef = useRef();
   const mountRef = useRef(null);
+
+  useEffect(() => {
+    hoveredSectionRef.current = hoveredSection;
+  }, [hoveredSection]);
 
   useEffect(() => {
     selectedSectionRef.current = selectedSection;
@@ -105,6 +132,34 @@ const IndexApp = () => {
       texture.colorSpace = THREE.SRGBColorSpace;
       scene.background = texture;
     });
+
+    const loadSTLGeometry = (stlLoader, stlData, meshName, target) => {
+      stlLoader.load(stlData, (geometry) => {
+        const position = new THREE.Vector3(0, SPHERE_Y_LEVELS, 0);
+        const scale = new THREE.Vector3(2, 2, 2);
+
+        const matrix = new THREE.Matrix4().compose(position, new THREE.Quaternion(), scale);
+
+        geometry.applyMatrix4(matrix);
+
+        const mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: 'white', wireframe: true, transparent: true, opacity: 0, depthTest: false }));
+        mesh.name = meshName;
+        // mesh.visible = false;
+        rotatingGroup.add(mesh);
+        const sampler = new MeshSurfaceSampler(mesh).build();
+        const tempPosition = new THREE.Vector3();
+        for(let i = 0; i < particleCount; i++) {
+          sampler.sample(tempPosition);
+          target[i * 3] = tempPosition.x;
+          target[i * 3 + 1] = tempPosition.y;
+          target[i * 3 + 2] = tempPosition.z;
+        }
+      });
+    };
+    loadSTLGeometry(stlLoader, workMeshData, "workMesh", workMeshTargets);
+    loadSTLGeometry(stlLoader, educationMeshData, "educationMesh", educationMeshTargets);
+    loadSTLGeometry(stlLoader, skillsMeshData, "skillsMesh", skillsMeshTargets);
+    loadSTLGeometry(stlLoader, portfolioMeshData, "portfolioMesh", portfolioMeshTargets);
 
     camera = new THREE.PerspectiveCamera(45, mountRef.current.clientWidth / mountRef.current.clientHeight, 1, 4000);
     camera.position.z = 1850;
@@ -118,7 +173,7 @@ const IndexApp = () => {
     mountRef.current.appendChild(cssRenderer.domElement);
     
     // Controles
-    controls = new OrbitControls( camera, mountRef.current );
+    controls = new OrbitControls(camera, mountRef.current);
     controls.minDistance = 1000;
     controls.maxDistance = 3000;
 
@@ -146,16 +201,14 @@ const IndexApp = () => {
     particles.setDrawRange(0, particleCount);
     particles.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3).setUsage(THREE.DynamicDrawUsage));
 
-    const pointCloud = new THREE.Points(
-      particles,
-      new THREE.PointsMaterial({
-        color: "white",
-        size: 1.1,
-        blending: THREE.AdditiveBlending,
-        transparent: true,
-        sizeAttenuation: false
-      })
-    );
+    const particlesMaterial = new THREE.PointsMaterial({
+      color: "white",
+      size: 1.1,
+      blending: THREE.AdditiveBlending,
+      transparent: true,
+      sizeAttenuation: false
+    });
+    const pointCloud = new THREE.Points(particles, particlesMaterial);
     
     const linesGeometry = new THREE.BufferGeometry();
     linesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3).setUsage(THREE.DynamicDrawUsage));
@@ -173,47 +226,24 @@ const IndexApp = () => {
     rotatingGroup.add(pointCloud);
     rotatingGroup.add(linesMesh);
 
-    // Spheres
-    const sphereTextureMapper = (sphere, texturePath) => {
-      const spherePosition = new THREE.Vector3();
-      const texture = loader.load(texturePath);
-
-      const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true, side: THREE.DoubleSide, depthWrite: false });
-      const plane = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), material);
-
-      // Position in front of the sphere
-      sphere.getWorldPosition(spherePosition);
-      plane.position.copy(spherePosition).add(new THREE.Vector3(50, 0, 0)); // offset forward
-      plane.lookAt(camera.position); // optional: make it always face the camera
-
-      return plane;
-    };
-
-    const sphereWork = new THREE.Mesh(new THREE.SphereGeometry(50, 50, 50), new THREE.MeshBasicMaterial({ color: "skyblue" }));
-    const sphereDegree = new THREE.Mesh(new THREE.SphereGeometry(50, 50, 50), new THREE.MeshBasicMaterial({ color: "skyblue" }));
-    const sphereSkills = new THREE.Mesh(new THREE.SphereGeometry(50, 50, 50), new THREE.MeshBasicMaterial({ color: "skyblue" }));
-    const sphereMisc = new THREE.Mesh(new THREE.SphereGeometry(50, 50, 50), new THREE.MeshBasicMaterial({ color: "skyblue" }));
+    const sphereWork = new THREE.Mesh(new THREE.SphereGeometry(50, 50, 50), new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load(workIcon), color: "skyblue" }));
+    const sphereEducation = new THREE.Mesh(new THREE.SphereGeometry(50, 50, 50), new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load(educationIcon), color: "skyblue" }));
+    const sphereSkills = new THREE.Mesh(new THREE.SphereGeometry(50, 50, 50), new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load(skillsIcon), color: "skyblue" }));
+    const spherePortfolio = new THREE.Mesh(new THREE.SphereGeometry(50, 50, 50), new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load(portfolioIcon), color: "skyblue" }));
+    sphereWork.sectionId = SECTIONS.WORK;
+    sphereEducation.sectionId = SECTIONS.EDUCATION;
+    sphereSkills.sectionId = SECTIONS.SKILLS;
+    spherePortfolio.sectionId = SECTIONS.PORTFOLIO;
 
     sphereWork.position.set(-SPHERE_ORBITING_RADIUS, SPHERE_Y_LEVELS, 0);
-    sphereDegree.position.set(0, SPHERE_Y_LEVELS, -SPHERE_ORBITING_RADIUS);
+    sphereEducation.position.set(0, SPHERE_Y_LEVELS, -SPHERE_ORBITING_RADIUS);
     sphereSkills.position.set(SPHERE_ORBITING_RADIUS, SPHERE_Y_LEVELS, 0);
-    sphereMisc.position.set(0, SPHERE_Y_LEVELS, SPHERE_ORBITING_RADIUS);
-    const sphereWorkContainer = sphereTextureMapper(sphereWork, workIcon);
-    const sphereDegreeContainer = sphereTextureMapper(sphereDegree, educationIcon);
-    const sphereSkillsContainer = sphereTextureMapper(sphereSkills, skillsIcon);
-    const sphereMiscContainer = sphereTextureMapper(sphereMisc, miscellaneousIcon);
+    spherePortfolio.position.set(0, SPHERE_Y_LEVELS, SPHERE_ORBITING_RADIUS);
 
     rotatingGroup.add(sphereWork);
-    rotatingGroup.add(sphereWorkContainer);
-    
-    rotatingGroup.add(sphereDegree);
-    rotatingGroup.add(sphereDegreeContainer);
-    
+    rotatingGroup.add(sphereEducation);
     rotatingGroup.add(sphereSkills);
-    rotatingGroup.add(sphereSkillsContainer);
-
-    rotatingGroup.add(sphereMisc);
-    rotatingGroup.add(sphereMiscContainer);
+    rotatingGroup.add(spherePortfolio);
 
     // 3D HTML CONTENT
     const mainDomObject = new THREE.Group();
@@ -263,7 +293,49 @@ const IndexApp = () => {
       panelMaterial
     );
     scene.add(sectionPanel);
-    hidePanel(panelLinesGeometry, panelMaterial, mainDomObject, panelDomObject, 0);
+
+    const showPanel = (duration = 1.0) => {
+      tl.clear();
+      gsap.to(mainDomObject.children[0].element.style, { opacity: 0, duration: 1/5 * duration, ease: "power2.out" });
+      gsap.to(mainDomObject.children[1].element.style, { opacity: 0, duration: 1/5 * duration, ease: "power2.out" });
+
+      // LINES
+      const linesDrawData = { count: 0 };
+      tl.to(linesDrawData, { count: panelLinesGeometry.attributes.position.count, duration: 2/5 * duration, ease: "power2.out", onUpdate: () => { panelLinesGeometry.setDrawRange(0, linesDrawData.count); } });
+    
+      // PANEL
+      const clipPlane = new THREE.Plane(new THREE.Vector3(0, -1, 0), -SPHERE_Y_LEVELS / 1.5 - 900);
+      panelMaterial.clippingPlanes = [clipPlane];
+      panelMaterial.clipShadows = true;
+      panelMaterial.transparent = true;
+      renderer.localClippingEnabled = true;
+      tl.to(clipPlane, { constant: -SPHERE_Y_LEVELS / 1.5 + 900, duration: 1/5 * duration, ease: "power2.out" });
+    
+      tl.to(panelDomObject.children[0].element.style, { opacity: 1, duration: 1/5 * duration, ease: "power2.out" });
+      tl.to(panelDomObject.children[1].element.style, { opacity: 1, duration: 0, ease: "power2.out" });
+    };
+
+    const hidePanel = (duration = 1.0) => {
+      tl.clear();
+
+      gsap.to(panelDomObject.children[0].element.style, { opacity: 0, duration: 1/10 * duration, ease: "power2.out" });
+      gsap.to(panelDomObject.children[1].element.style, { opacity: 0, duration: 1/10 * duration, ease: "power2.out" });
+
+      // PANEL
+      const clipPlane = new THREE.Plane(new THREE.Vector3(0, -1, 0), -SPHERE_Y_LEVELS / 1.5 + 900);
+      panelMaterial.clippingPlanes = [clipPlane];
+      panelMaterial.clipShadows = true;
+      panelMaterial.transparent = true;
+      renderer.localClippingEnabled = true;
+      tl.to(clipPlane, { constant: -SPHERE_Y_LEVELS / 1.5 - 900, duration: 1/5 * duration, ease: "power2.out" });
+
+      // LINES
+      const linesDrawData = { count: panelLinesGeometry.attributes.position.count };
+      tl.to(linesDrawData, { count: 0, duration: 2/5 * duration, ease: "power2.out", onUpdate: () => { panelLinesGeometry.setDrawRange(0, linesDrawData.count); } });
+      
+      tl.to(mainDomObject.children[0].element.style, { opacity: 1, duration: 1/5 * duration, ease: "power2.out" });
+      tl.to(mainDomObject.children[1].element.style, { opacity: 1, duration: 0, ease: "power2.out" });
+    };
 
     const onMouseMove = (event) => {
       event.preventDefault();
@@ -273,153 +345,109 @@ const IndexApp = () => {
 
       rayCaster.setFromCamera(mouse, camera);
 
-      var intersectWork = rayCaster.intersectObject(sphereWork, true);
-      var intersectDegree = rayCaster.intersectObject(sphereDegree, true);
-      var intersectSkills = rayCaster.intersectObject(sphereSkills, true);
-      var intersectMisc = rayCaster.intersectObject(sphereMisc, true);
-      
-      if (intersectWork.length > 0) {
-        displaySection(SECTIONS.WORK);
-        window.removeEventListener('mousemove', onMouseMove);
-        window.addEventListener('mousemove', function workLeaveWatcher(event) {
-          event.preventDefault();
-          document.body.style.cursor = 'pointer';
-
-          mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-          mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-          rayCaster.setFromCamera(mouse, camera);
-
-          intersectWork = rayCaster.intersectObject(sphereWork, true);
-
-          if (intersectWork.length === 0) {
-            document.body.style.cursor = 'default';
-            setSelectedSection();
-            gsap.to(sphereWork.scale, { x: 1, y: 1, z: 1, duration: 0.5, ease: "power2.out" });
-            gsap.to(sphereWorkContainer.scale, { x: 1, y: 1, z: 1, duration: 0.5, ease: "power2.out" });
-            gsap.to(sphereWork.material.color, { ...new THREE.Color("skyblue"), duration: 0.5 });
-            hidePanel(panelLinesGeometry, panelMaterial, mainDomObject, panelDomObject);
-            window.removeEventListener('mousemove', workLeaveWatcher);
-            window.addEventListener('mousemove', onMouseMove);
-          }
-        });
-      }
-      else if (intersectDegree.length > 0) {
-        displaySection(SECTIONS.EDUCATION);
-        window.removeEventListener('mousemove', onMouseMove);
-        window.addEventListener('mousemove', function degreeLeaveWatcher(event) {
-          event.preventDefault();
-          document.body.style.cursor = 'pointer';
-
-          mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-          mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-          rayCaster.setFromCamera(mouse, camera);
-
-          intersectDegree = rayCaster.intersectObject(sphereDegree, true);
-
-          if (intersectDegree.length === 0) {
-            document.body.style.cursor = 'default';
-            setSelectedSection();
-            gsap.to(sphereDegree.scale, { x: 1, y: 1, z: 1, duration: 0.5, ease: "power2.out" });
-            gsap.to(sphereDegreeContainer.scale, { x: 1, y: 1, z: 1, duration: 0.5, ease: "power2.out" });
-            gsap.to(sphereDegree.material.color, { ...new THREE.Color("skyblue"), duration: 0.5 });
-            hidePanel(panelLinesGeometry, panelMaterial, mainDomObject, panelDomObject);
-            window.removeEventListener('mousemove', degreeLeaveWatcher);
-            window.addEventListener('mousemove', onMouseMove);
-          }
-        });
-      }
-      else if (intersectSkills.length > 0) {
-        displaySection(SECTIONS.SKILLS);
-        window.removeEventListener('mousemove', onMouseMove);
-        window.addEventListener('mousemove', function skillsLeaveWatcher(event) {
-          event.preventDefault();
-          document.body.style.cursor = 'pointer';
-
-          mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-          mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-          rayCaster.setFromCamera(mouse, camera);
-
-          intersectSkills = rayCaster.intersectObject(sphereSkills, true);
-
-          if (intersectSkills.length === 0) {
-            document.body.style.cursor = 'default';
-            setSelectedSection();
-            gsap.to(sphereSkills.scale, { x: 1, y: 1, z: 1, duration: 0.5, ease: "power2.out" });
-            gsap.to(sphereSkillsContainer.scale, { x: 1, y: 1, z: 1, duration: 0.5, ease: "power2.out" });
-            gsap.to(sphereSkills.material.color, { ...new THREE.Color("skyblue"), duration: 0.5 });
-            hidePanel(panelLinesGeometry, panelMaterial, mainDomObject, panelDomObject);
-            window.removeEventListener('mousemove', skillsLeaveWatcher);
-            window.addEventListener('mousemove', onMouseMove);
-          }
-        });
-      }
-      else if (intersectMisc.length > 0) {
-        displaySection(SECTIONS.MISCELLANEOUS);
-        window.removeEventListener('mousemove', onMouseMove);
-        window.addEventListener('mousemove', function miscLeaveWatcher(event) {
-          event.preventDefault();
-          document.body.style.cursor = 'pointer';
-
-          mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-          mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-          rayCaster.setFromCamera(mouse, camera);
-
-          intersectMisc = rayCaster.intersectObject(sphereMisc, true);
-
-          if (intersectMisc.length === 0) {
-            document.body.style.cursor = 'default';
-            setSelectedSection();
-            gsap.to(sphereMisc.scale, { x: 1, y: 1, z: 1, duration: 0.5, ease: "power2.out" });
-            gsap.to(sphereMiscContainer.scale, { x: 1, y: 1, z: 1, duration: 0.5, ease: "power2.out" });
-            gsap.to(sphereMisc.material.color, { ...new THREE.Color("skyblue"), duration: 0.5 });
-            hidePanel(panelLinesGeometry, panelMaterial, mainDomObject, panelDomObject);
-            window.removeEventListener('mousemove', miscLeaveWatcher);
-            window.addEventListener('mousemove', onMouseMove);
-          }
-        });
+      const intersects = rayCaster.intersectObjects([sphereWork, sphereEducation, sphereSkills, spherePortfolio], true);
+      if (intersects.length > 0) {
+        document.body.style.cursor = 'pointer';
+        const hoveredMesh = intersects[0].object;
+        if(hoveredMesh.sectionId == hoveredSectionRef.current)
+          return;
+        setHoveredSection(hoveredMesh.sectionId);
+        gsap.to(hoveredMesh.scale, { x: 1.1, y: 1.1, z: 1.1, duration: 0.5, ease: "power2.out" });
+        gsap.to(hoveredMesh.material.color, { ...new THREE.Color('white'), duration: 0.5 });
+        showPanel();
+      } else if(hoveredSectionRef.current != null) {
+        document.body.style.cursor = 'default';
+        const hoveredMesh = scene.getObjectByProperty("sectionId", hoveredSectionRef.current);
+        setHoveredSection();
+        gsap.to(hoveredMesh.scale, { x: 1, y: 1, z: 1, duration: 0.5, ease: "power2.out" });
+        gsap.to(hoveredMesh.material.color, { ...new THREE.Color("skyblue"), duration: 0.5 });
+        hidePanel();
       }
     };
 
-    const displaySection = (sectionID) => {
-      switch (sectionID) {
-        case SECTIONS.WORK :
-          setSelectedSection(SECTIONS.WORK);
-          gsap.to(sphereWork.scale, { x: 1.1, y: 1.1, z: 1.1, duration: 0.5, ease: "power2.out" });
-          gsap.to(sphereWorkContainer.scale, { x: 1.1, y: 1.1, z: 1.1, duration: 0.5, ease: "power2.out" });
-          gsap.to(sphereWork.material.color, { ...new THREE.Color('white'), duration: 0.5 });
-          break;
-        case SECTIONS.EDUCATION :
-          setSelectedSection(SECTIONS.EDUCATION);
-          gsap.to(sphereDegree.scale, { x: 1.1, y: 1.1, z: 1.1, duration: 0.5, ease: "power2.out" });
-          gsap.to(sphereDegreeContainer.scale, { x: 1.1, y: 1.1, z: 1.1, duration: 0.5, ease: "power2.out" });
-          gsap.to(sphereDegree.material.color, { ...new THREE.Color('white'), duration: 0.5 });
-          break;
-        case SECTIONS.SKILLS :
-          setSelectedSection(SECTIONS.SKILLS);
-          gsap.to(sphereSkills.scale, { x: 1.1, y: 1.1, z: 1.1, duration: 0.5, ease: "power2.out" });
-          gsap.to(sphereSkillsContainer.scale, { x: 1.1, y: 1.1, z: 1.1, duration: 0.5, ease: "power2.out" });
-          gsap.to(sphereSkills.material.color, { ...new THREE.Color('white'), duration: 0.5 });
-          break;
-        case SECTIONS.MISCELLANEOUS :
-          setSelectedSection(SECTIONS.MISCELLANEOUS);
-          gsap.to(sphereMisc.scale, { x: 1.1, y: 1.1, z: 1.1, duration: 0.5, ease: "power2.out" });
-          gsap.to(sphereMiscContainer.scale, { x: 1.1, y: 1.1, z: 1.1, duration: 0.5, ease: "power2.out" });
-          gsap.to(sphereMisc.material.color, { ...new THREE.Color('white'), duration: 0.5 });
-          break;
-        default :
-          break;
-      }
+    const onMouseDown = () => {
+      window.addEventListener('mouseup', onMouseUp, false);
 
-      showPanel(panelLinesGeometry, panelMaterial, mainDomObject, panelDomObject);
+      // For telling if the user is dragging or clicking
+      setTimeout(() => { window.removeEventListener('mouseup', onMouseUp); }, 200);
+    };
+    const onMouseUp = (event) => {
+      event.preventDefault();
+      
+      setHoveredSection();
+      
+      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+      rayCaster.setFromCamera(mouse, camera);
+
+      const intersects = rayCaster.intersectObjects([sphereWork, sphereEducation, sphereSkills, spherePortfolio], true);
+      const oldMesh = scene.getObjectByProperty("sectionId", selectedSectionRef.current);
+      if (selectedSectionRef.current == null && intersects.length > 0) {
+        document.body.style.cursor = 'default';
+        window.removeEventListener("mousemove", onMouseMove);
+        const selectedMesh = intersects[0].object;
+        if(selectedMesh.sectionId != selectedSectionRef.current) {
+          gsap.to(oldMesh.scale, { x: 1, y: 1, z: 1, duration: 0.5, ease: "power2.out" });
+          gsap.to(oldMesh.material?.color, { ...new THREE.Color("skyblue"), duration: 0.5 });
+          gsap.to(selectedMesh.scale, { x: 1.1, y: 1.1, z: 1.1, duration: 0.5, ease: "power2.out" });
+          gsap.to(selectedMesh.material?.color, { ...new THREE.Color('white'), duration: 0.5 });
+          if(selectedMesh.sectionId != hoveredSectionRef.current)
+            showPanel();
+          setSelectedSection(selectedMesh.sectionId);
+        }
+      } else if(selectedSectionRef.current != null) {
+        window.addEventListener("mousemove", onMouseMove);
+        gsap.to(oldMesh.scale, { x: 1, y: 1, z: 1, duration: 0.5, ease: "power2.out" });
+        gsap.to(oldMesh.material?.color, { ...new THREE.Color("skyblue"), duration: 0.5 });
+        setSelectedSection();
+        hidePanel();
+      }
+    };
+
+    const onWindowResize = () => {
+      camera.aspect = mountRef.current.clientWidth / mountRef.current.clientHeight;
+      camera.updateProjectionMatrix();
+
+      renderer.setSize(mountRef.current.clientWidth, mountRef.current.clientHeight);
+      cssRenderer.setSize(mountRef.current.clientWidth, mountRef.current.clientHeight);
+      composer.setSize(mountRef.current.clientWidth, mountRef.current.clientHeight);
+    };
+
+    const onWindowLoad = () => {
+      $("#loader").css("opacity", 0);
+      $("#loader").css("z-index", 0);
+    };
+
+    const resetView = () => {
+      controls.reset();
     };
 
     // EVENTS
     window.addEventListener('mousemove', onMouseMove, false);
+    window.addEventListener('mousedown', onMouseDown, false);
     window.addEventListener('resize', onWindowResize, false);
+    window.addEventListener('load', onWindowLoad, false);
+    document.getElementById("reset-view-button").addEventListener('mousedown', resetView);
+    $(".lang-button").on('mousedown', handleLanguageToggle);
+
+    const collapsePointCloud = (target, lerpFactor = 0.05) => {
+      for (let i = 0; i < particleCount; i++) {
+        const ix = i * 3;
+        const iy = i * 3 + 1;
+        const iz = i * 3 + 2;
+
+        // Direction vector = target - current
+        const dx = target[ix] - particlePositions[ix];
+        const dy = target[iy] - particlePositions[iy];
+        const dz = target[iz] - particlePositions[iz];
+
+        // Move current position toward target
+        particlePositions[ix] += dx * lerpFactor;
+        particlePositions[iy] += dy * lerpFactor;
+        particlePositions[iz] += dz * lerpFactor;
+      }
+    };
 
     const animate = () => {
       requestAnimationFrame(animate);
@@ -430,6 +458,51 @@ const IndexApp = () => {
 
       for (let i = 0; i < particleCount; i++)
         particlesData[i].numConnections = 0;
+
+      const workMesh = scene.getObjectByName("workMesh");
+      const educationMesh = scene.getObjectByName("educationMesh");
+      const skillsMesh = scene.getObjectByName("skillsMesh");
+      const portfolioMesh = scene.getObjectByName("portfolioMesh");
+      if(selectedSectionRef.current == SECTIONS.WORK) {
+        collapsePointCloud(workMeshTargets);
+        educationMesh.material.opacity = 0;
+        skillsMesh.material.opacity = 0;
+        portfolioMesh.material.opacity = 0;
+        gsap.to(linesMesh.material, { opacity: 0, duration: 5, ease: "power2.out" });
+        gsap.to(workMesh.material, { opacity: 0.01, duration: 2, ease: "power2.out" });
+      }
+      else if(selectedSectionRef.current == SECTIONS.EDUCATION) {
+        collapsePointCloud(educationMeshTargets);
+        workMesh.material.opacity = 0;
+        skillsMesh.material.opacity = 0;
+        portfolioMesh.material.opacity = 0;
+        gsap.to(linesMesh.material, { opacity: 0, duration: 5, ease: "power2.out" });
+        gsap.to(educationMesh.material, { opacity: 0.01, duration: 2, ease: "power2.out" });
+      }
+      else if(selectedSectionRef.current == SECTIONS.SKILLS) {
+        collapsePointCloud(skillsMeshTargets);
+        workMesh.material.opacity = 0;
+        educationMesh.material.opacity = 0;
+        portfolioMesh.material.opacity = 0;
+        gsap.to(linesMesh.material, { opacity: 0, duration: 5, ease: "power2.out" });
+        gsap.to(skillsMesh.material, { opacity: 0.01, duration: 2, ease: "power2.out" });
+      }
+      else if(selectedSectionRef.current == SECTIONS.PORTFOLIO) {
+        collapsePointCloud(portfolioMeshTargets);
+        workMesh.material.opacity = 0;
+        educationMesh.material.opacity = 0;
+        skillsMesh.material.opacity = 0;
+        gsap.to(linesMesh.material, { opacity: 0, duration: 5, ease: "power2.out" });
+        gsap.to(portfolioMesh.material, { opacity: 0.01, duration: 2, ease: "power2.out" });
+      }
+      else {
+        gsap.to(linesMesh.material, { opacity: 1, duration: 5, ease: "power2.out" });
+
+        if(workMesh) workMesh.material.opacity = 0;
+        if(educationMesh) educationMesh.material.opacity = 0;
+        if(skillsMesh) skillsMesh.material.opacity = 0;
+        if(portfolioMesh) portfolioMesh.material.opacity = 0;
+      }
 
       for (let i = 0; i < particleCount; i++) {
         // get the particle
@@ -499,30 +572,25 @@ const IndexApp = () => {
 
       rotatingGroup.rotation.y = time * 0.1;
 
-      const pos = new THREE.Vector3();
-      if (selectedSectionRef.current == SECTIONS.WORK)
-        sphereWork.getWorldPosition(pos);
-      else if (selectedSectionRef.current == SECTIONS.EDUCATION)
-        sphereDegree.getWorldPosition(pos);
-      else if (selectedSectionRef.current == SECTIONS.SKILLS)
-        sphereSkills.getWorldPosition(pos);
-      else if (selectedSectionRef.current == SECTIONS.MISCELLANEOUS)
-        sphereMisc.getWorldPosition(pos);
-      else 
-        pos.set(0, SPHERE_Y_LEVELS, 0);
+      const pos = new THREE.Vector3(0, SPHERE_Y_LEVELS, 0);
+      if(hoveredSectionRef.current != null) {
+        const hoveredMesh = scene.getObjectByProperty("sectionId", hoveredSectionRef.current);
+        hoveredMesh.getWorldPosition(pos);
+      }
       panelLines.geometry.attributes.position.setXYZ(0, pos.x, pos.y, pos.z);
       panelLines.geometry.attributes.position.needsUpdate = true;
 
-      sphereWorkContainer.lookAt(camera.position);
-      sphereDegreeContainer.lookAt(camera.position);
-      sphereSkillsContainer.lookAt(camera.position);
-      sphereMiscContainer.lookAt(camera.position);
+      sphereWork.lookAt(camera.position);
+      sphereEducation.lookAt(camera.position);
+      sphereSkills.lookAt(camera.position);
+      spherePortfolio.lookAt(camera.position);
 
       renderer.render(scene, camera);
       cssRenderer.render(cssScene, camera);
       composer.render();
     };
 
+    hidePanel(0);
     animate();
 
     // Clean up on unmount
@@ -531,56 +599,9 @@ const IndexApp = () => {
     };
   }, []);
 
-  const onWindowResize = () => {
-    camera.aspect = mountRef.current.clientWidth / mountRef.current.clientHeight;
-    camera.updateProjectionMatrix();
-
-    renderer.setSize(mountRef.current.clientWidth, mountRef.current.clientHeight);
-    cssRenderer.setSize(mountRef.current.clientWidth, mountRef.current.clientHeight);
-    composer.setSize(mountRef.current.clientWidth, mountRef.current.clientHeight);
-  };
-
-  const showPanel = (panelLinesGeometry, panelMaterial, mainDomObject, panelDomObject, duration = 0.7) => {
-    gsap.to(mainDomObject.children[0].element.style, { opacity: 0, duration: 0.75/5 * duration, ease: "power2.out" });
-    gsap.to(mainDomObject.children[1].element.style, { opacity: 0, duration: 0.75/5 * duration, ease: "power2.out" });
-
-    const tl = gsap.timeline();
-
-    // LINES
-    const linesDrawData = { count: 0 };
-    tl.to(linesDrawData, { count: panelLinesGeometry.attributes.position.count, duration: 5/7 * duration, ease: "power2.out", onUpdate: () => { panelLinesGeometry.setDrawRange(0, linesDrawData.count); } });
-  
-    // PANEL
-    const clipPlane = new THREE.Plane(new THREE.Vector3(0, -1, 0), -SPHERE_Y_LEVELS / 1.5 - 900);
-    panelMaterial.clippingPlanes = [clipPlane];
-    panelMaterial.clipShadows = true;
-    panelMaterial.transparent = true;
-    renderer.localClippingEnabled = true;
-    tl.to(clipPlane, { constant: -SPHERE_Y_LEVELS / 1.5 + 900, duration: 2/7 * duration, ease: "power2.out" });
-  
-    tl.to(panelDomObject.children[0].element.style, { opacity: 1, duration: 0.75/5 * duration, ease: "power2.out" });
-    tl.to(panelDomObject.children[1].element.style, { opacity: 1, duration: 0, ease: "power2.out" });
-  };
-
-  const hidePanel = (panelLinesGeometry, panelMaterial, mainDomObject, panelDomObject, duration = 1.0) => {
-    gsap.to(panelDomObject.children[0].element.style, { opacity: 0, duration: 0.75/5 * duration, ease: "power2.out" });
-    gsap.to(panelDomObject.children[1].element.style, { opacity: 0, duration: 0.75/5 * duration, ease: "power2.out" });
-    const tl = gsap.timeline();
-
-    // PANEL
-    const clipPlane = new THREE.Plane(new THREE.Vector3(0, -1, 0), -SPHERE_Y_LEVELS / 1.5 + 900);
-    panelMaterial.clippingPlanes = [clipPlane];
-    panelMaterial.clipShadows = true;
-    panelMaterial.transparent = true;
-    renderer.localClippingEnabled = true;
-    tl.to(clipPlane, { constant: -SPHERE_Y_LEVELS / 1.5 - 900, duration: 1/5 * duration, ease: "power2.out" });
-
-    // LINES
-    const linesDrawData = { count: panelLinesGeometry.attributes.position.count };
-    tl.to(linesDrawData, { count: 0, duration: 1/2 * duration, ease: "power2.out", onUpdate: () => { panelLinesGeometry.setDrawRange(0, linesDrawData.count); } });
-    
-    tl.to(mainDomObject.children[0].element.style, { opacity: 1, duration: 0.75/5 * duration, ease: "power2.out" });
-    tl.to(mainDomObject.children[1].element.style, { opacity: 1, duration: 0, ease: "power2.out" });
+  const handleLanguageToggle = (event) => {
+    // $(".switch .switch-handle").css("left", event.target.id == "lang-en" ? "50%" : "0%");
+    i18n.changeLanguage(event.target.id == "lang-en" ? "en" : "fr");
   };
 
   return <>
@@ -611,18 +632,59 @@ const IndexApp = () => {
               backfaceVisibility: "hidden",
               transformStyle: "preserve-3d",
               transform: `rotate(${suffix == "-mirrored" ? 180 : 0}deg)`,
-              top: 142.5  // TODO: Magic value
+              top: 142.5,  // TODO: Magic value
+              zIndex: (hoveredSection != null) || (selectedSection != null) ? 1 : 0,
             }}
           >
-            { selectedSection == SECTIONS.WORK ? <WorkPanel /> : null }
-            { selectedSection == SECTIONS.EDUCATION ? <EducationPanel /> : null }
-            { selectedSection == SECTIONS.SKILLS ? <SkillsPanel /> : null }
-            { selectedSection == SECTIONS.MISCELLANEOUS ? <MiscellaneousPanel /> : null }
+            { (hoveredSection == SECTIONS.WORK) || (selectedSection == SECTIONS.WORK) ? <WorkPanel /> : null }
+            { (hoveredSection == SECTIONS.EDUCATION) || (selectedSection == SECTIONS.EDUCATION) ? <EducationPanel /> : null }
+            { (hoveredSection == SECTIONS.SKILLS) || (selectedSection == SECTIONS.SKILLS) ? <SkillsPanel /> : null }
+            { (hoveredSection == SECTIONS.PORTFOLIO) || (selectedSection == SECTIONS.PORTFOLIO) ? <PortfolioPanel /> : null }
           </div>
         </>;
       })
     }
-    <div className = 'w-100 h-100' ref = { mountRef }></div>
+    <div className = 'w-100 h-100' ref = { mountRef }>
+      <div id = "loader" className = 'position-absolute w-100 h-100 d-flex align-items-center justify-content-center'>
+        <div className = "loader-item"></div>
+      </div>
+      <div className = 'position-absolute top-0 bottom-0 start-0 end-0'>
+        <div className = "fixed-bottom d-flex justify-content-center align-items-center">
+          <button
+            type = "button"
+            id = "reset-view-button"
+            className = 'btn btn-sm btn-outline-light border-0 mx-2'
+            style = {{ zIndex: 1 }}
+          >
+            <i className = "bi bi-arrow-counterclockwise align-middle me-1"></i>
+            { t("Index/IndexApp:reset-view-label") }
+          </button>
+          <div className = "switch rounded overflow-hidden position-relative border borrder-1 border-light mx-2" style = {{ zIndex: 1 }}>
+            <span
+              className = "switch-handle position-absolute w-50 h-100 bg-light p-0"
+              style = {{ left: i18n.language == "en" ? "50%" : "0%" }}
+            >
+            </span>
+            <div className = 'position-absolute w-100 h-100'>
+              <button
+                type = "button"
+                className = 'lang-button bg-transparent border-0 w-50 h-100 p-0'
+                id = "lang-fr"
+              >
+                <img className = "align-baseline h-100" src = { frIcon } style = {{ pointerEvents: "none" }} alt = "Français" title = "Français" />
+              </button>
+              <button
+                type = "button"
+                className = "lang-button bg-transparent border-0 w-50 h-100 p-0"
+                id = "lang-en"
+              >
+                <img className = "align-baseline h-100" src = { enIcon } style = {{ pointerEvents: "none" }} alt = "English" title = "English" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </>;
 };
 

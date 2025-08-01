@@ -1,6 +1,7 @@
 const Path = require('path');
 const Webpack = require('webpack');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
@@ -42,6 +43,14 @@ module.exports = {
       "window.jQuery": 'jquery',
     }),
     new CleanWebpackPlugin(),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: Path.resolve(__dirname, '../src/assets/locales'),
+          to: 'locales/[path][name].[hash][ext]'
+        }
+      ],
+    }),
     new HtmlWebpackPlugin({
       hash: true,
       title: "Stéphane Petiot - Interactive Resume",
@@ -75,7 +84,7 @@ module.exports = {
         }
       },
       {
-        test: /\.(glb|obj)$/,
+        test: /\.(glb|obj|stl)$/,
         type: 'asset/resource',
         generator: {
           filename: 'meshes/[name][ext]'

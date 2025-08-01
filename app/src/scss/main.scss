@@ -1,25 +1,21 @@
 @charset "UTF-8";
 
 // 1. Abstracts
-@import
-  "abstracts/functions",
-  "abstracts/mixins",
-  "abstracts/placeholders",
-  "abstracts/variables";
+@use "abstracts/functions";
+@use "abstracts/mixins";
+@use "abstracts/placeholders";
+@use "abstracts/variables";
 
 // 2. Vendors
-@import
-  "vendors/bootstrap";
+@use "vendors/bootstrap";
 
 // 3. Base
-@import
-  "base/base",
-  "base/fonts",
-  "base/animations",
-  "base/helpers",
-  "base/reboot",
-  "base/typography";
+@use "base/base";
+@use "base/fonts";
+@use "base/animations";
+@use "base/helpers";
+@use "base/reboot";
+@use "base/typography";
 
 // 5. Layout
-@import
-  "layout/content";
+@use "layout/content";

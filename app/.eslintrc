@@ -24,6 +24,7 @@
       "react/jsx-uses-vars": "error" 
     },
     "globals": {
-      "resolution": "writable"
+      "__webpack_public_path__": "readonly",
+      "__webpack_hash__": "readonly"
     }
   }

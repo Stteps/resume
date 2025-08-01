@@ -10,8 +10,8 @@ body {
   word-break: break-word;
   white-space: normal;
   hyphens: auto;
-  color: $light;
-  text-shadow: 2px 2px 2px $dark;
+  color: #F8F9fA;
+  text-shadow: 2px 2px 2px #343A40;
 }
 
 h1 {
@@ -20,7 +20,7 @@ h1 {
 
 h2,
 h3 {
-  font-family: "Funnel Display Bold";
+  font-family: "Funnel Display SemiBold";
 }
 
 a {
