@@ -1,0 +1,15 @@
+{
+    "title": "Experience professionnelle",
+    "first-item": {
+        "title": "Ingénieur Full-Stack | 3IA Côte d'Azur – Sophia Antipolis, France",
+        "text": "Développement de démonstrateurs logiciels et contribution à des projets de recherches en Data Science & IA"
+    },
+    "second-item": {
+        "title": "Ingénieur Logiciel IA | INRIA – Sophia Antipolis, France",
+        "text": "Développement d'un logiciel de clustering de réseaux de communications"
+    },
+    "third-item": {
+        "title": "Ingénieur Big Data | Datacorp Innovation – Sophia Antipolis, France",
+        "text": "Contribution au développement et à l’industrialisation d’un outil d’aide à la décision pour les analystes des compagnies aeriennes"
+    }
+}
