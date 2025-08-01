@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  resume-app:
+    # image: spetiot/resume:latest
+    build: 
+      context: ../../
+      dockerfile: ./docker/production/app/Dockerfile
+    container_name: resume-app
+    volumes:
+      - ../../app:/app
