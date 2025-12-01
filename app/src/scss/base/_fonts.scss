@@ -8,25 +8,55 @@
 // .icon-fr::before { icon-font: url("../assets/icons/fr.svg"); }
 // .icon-en::before { icon-font: url("../assets/icons/en.svg"); }
 
-/* Funnel Display
+/* Work Sans
    ========================================================================== */
 
 /**
 * Bold
 */
 @font-face {
-  font-family: "Funnel Display Bold";
-  src: url("../assets/fonts/FunnelDisplay/static/FunnelDisplay-Bold.ttf") format("truetype");
+  font-family: "Work Sans Bold";
+  src: url("../assets/fonts/WorkSans/WorkSans-Bold.ttf") format("truetype");
+  font-weight: bold;
+  font-style: normal;
+}
+
+/**
+* Bold Italic
+*/
+@font-face {
+  font-family: "Work Sans Bold Italic";
+  src: url("../assets/fonts/WorkSans/WorkSans-BoldItalic.ttf") format("truetype");
+  font-weight: bold;
+  font-style: italic;
+}
+
+/**
+* Medium
+*/
+@font-face {
+  font-family: "Work Sans Medium";
+  src: url("../assets/fonts/WorkSans/WorkSans-Medium.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 /**
-* ExtraBold
+* Medium Italic
 */
 @font-face {
-  font-family: "Funnel Display ExtraBold";
-  src: url("../assets/fonts/FunnelDisplay/static/FunnelDisplay-ExtraBold.ttf") format("truetype");
+  font-family: "Work Sans Medium Italic";
+  src: url("../assets/fonts/WorkSans/WorkSans-MediumItalic.ttf") format("truetype");
+  font-weight: normal;
+  font-style: italic;
+}
+
+/**
+* Regular
+*/
+@font-face {
+  font-family: "Work Sans Regular";
+  src: url("../assets/fonts/WorkSans/WorkSans-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
@@ -35,38 +65,28 @@
 * Light
 */
 @font-face {
-  font-family: "Funnel Display Light";
-  src: url("../assets/fonts/FunnelDisplay/static/FunnelDisplay-Light.ttf") format("truetype");
+  font-family: "Work Sans Light";
+  src: url("../assets/fonts/WorkSans/WorkSans-Light.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 /**
-* Medium
+* Light Italic
 */
 @font-face {
-  font-family: "Funnel Display Medium";
-  src: url("../assets/fonts/FunnelDisplay/static/FunnelDisplay-Medium.ttf") format("truetype");
+  font-family: "Work Sans Light Italic";
+  src: url("../assets/fonts/WorkSans/WorkSans-LightItalic.ttf") format("truetype");
   font-weight: normal;
-  font-style: normal;
+  font-style: italic;
 }
 
 /**
-* Regular
+* Italic
 */
 @font-face {
-  font-family: "Funnel Display Regular";
-  src: url("../assets/fonts/FunnelDisplay/static/FunnelDisplay-Regular.ttf") format("truetype");
+  font-family: "Work Sans Light Italic";
+  src: url("../assets/fonts/WorkSans/WorkSans-Italic.ttf") format("truetype");
   font-weight: normal;
-  font-style: normal;
-}
-
-/**
-* SemiBold
-*/
-@font-face {
-  font-family: "Funnel Display SemiBold";
-  src: url("../assets/fonts/FunnelDisplay/static/FunnelDisplay-SemiBold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
+  font-style: italic;
 }

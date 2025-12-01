@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
 
 import _3iaDemosPicture from "~/assets/images/3ia-demos.png";
@@ -20,11 +21,11 @@ const PORTFOLIO = [
 ];
 
 
-const PortfolioPanel = () => {
+const PortfolioPanel = (props) => {
     const { t } = useTranslation(["common", "glossary", "Index/PortfolioPanel"]);
 
     return <div className = "py-3 px-4 fs-3">
-        <div className = "display-3 border border-top-0 border-start-0 border-end-0 border-bottom-5 border-white"><i className = "bi bi-code-slash"></i>&nbsp;{ t("Index/PortfolioPanel:title") }</div>
+        <div className = "display-3 text-center">{ t("Index/PortfolioPanel:title") }</div>
         <div className = "d-flex flex-wrap justify-content-evenly align-items-center my-3 text-center">
             {
                 PORTFOLIO.map((item, i) => (
@@ -33,7 +34,8 @@ const PortfolioPanel = () => {
                         <figcaption>
                             <a
                                 className = "stretched-link link-light"
-                                onPointerDown = {() => { window.open(item.url, 'blank'); }}
+                                onPointerDown = { () => { window.open(item.url, 'blank'); } }
+                                onMouseDown = { props.resetControls }
                                 href = { item.url }
                                 target = "blank"
                             >
@@ -53,6 +55,10 @@ const PortfolioPanel = () => {
             }
         </div>
     </div>;
+};
+
+PortfolioPanel.propTypes = {
+    resetControls: PropTypes.func,
 };
 
 export default PortfolioPanel;

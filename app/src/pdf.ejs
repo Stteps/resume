@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset = 'utf-8'>
+    <title><%= htmlWebpackPlugin.options.title %></title>
+
+    <link rel = 'icon' type = "image/x-icon" href = "data:image/x-icon;base64,">
+  </head>
+
+  <body>
+    <!-- Hidden React-rendered content -->
+    <div id = "hidden-content"></div>
+
+    <!-- The resulting PDF -->
+    <iframe id = "pdf-viewer"></iframe>
+
+    <div class = "position-absolute top-0 bottom-0 start-0 end-0 d-flex flex-column justify-content-center align-items-center text-center text-dark bg-light">
+        <div class = "spinner-grow" role = "status">
+            <span class = "visually-hidden">Loading...</span>
+        </div>
+        <p>Please wait until the PDF file is generated...</p>
+    </div>
+  </body>
+</html>

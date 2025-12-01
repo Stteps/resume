@@ -2,8 +2,11 @@
 // This file contains global typographic rules
 // -----------------------------------------------------------------------------
 
+@use "../abstracts/variables" as *;
+
+
 body {
-  font-family: "Funnel Display Regular";
+  font-family: "Work Sans Regular";
   font-size: 1.25rem;
   overflow-wrap: break-word;
   word-wrap: break-word;
@@ -11,16 +14,11 @@ body {
   white-space: normal;
   hyphens: auto;
   color: #F8F9fA;
-  text-shadow: 2px 2px 2px #343A40;
+  text-shadow: 2px 2px 2px $dark-color;
 }
 
 h1 {
-  font-family: "Funnel Display Light";
-}
-
-h2,
-h3 {
-  font-family: "Funnel Display SemiBold";
+  font-family: "Work Sans Light";
 }
 
 a {
@@ -29,4 +27,14 @@ a {
 
 .list-styled li {
   list-style: square;
+}
+
+.tag {
+  background: rgb(248 249 250 / 75%);
+  text-shadow: none;
+  color: $dark-color;
+}
+
+.modal {
+  text-shadow: none;
 }

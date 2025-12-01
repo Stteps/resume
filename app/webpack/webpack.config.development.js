@@ -79,7 +79,15 @@ module.exports = merge(common, {
           },
           'icon-font-loader',
           'postcss-loader',
-          'sass-loader',
+          {
+            loader: 'sass-loader',
+            options: {
+              sassOptions: {
+                quietDeps: true,
+                silenceDeprecations: ['import'],
+              },
+            },
+          }
         ],
       },
     ],

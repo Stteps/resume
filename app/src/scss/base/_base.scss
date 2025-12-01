@@ -2,6 +2,16 @@
 // This file contains very basic styles.
 // -----------------------------------------------------------------------------
 
+@use "../abstracts/variables" as *;
+
 html, body {
   height: 100%;
+}
+
+img {
+  filter: drop-shadow(-0.5px -0.5px 0.5px rgb(248 249 250));
+}
+
+.modal-header {
+  background: $dark-color;
 }

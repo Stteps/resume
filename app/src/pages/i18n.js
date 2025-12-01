@@ -16,6 +16,7 @@ i18n.use(HttpApi).use(LngDetector).use(initReactI18next).init({
         "Index/EducationPanel",
         "Index/SkillsPanel",
         "Index/PortfolioPanel",
+        "Pdf/PdfApp"
     ],
     defaultNS: "common",
     interpolation: {

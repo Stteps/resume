@@ -7,6 +7,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 module.exports = {
   entry: {
     index: Path.resolve(__dirname, '../src/pages/index.js'),
+    pdf: Path.resolve(__dirname, '../src/pages/pdf.js'),
   },
   output: {
     path: Path.join(__dirname, '../build'),
@@ -55,6 +56,15 @@ module.exports = {
       hash: true,
       title: "Stéphane Petiot - Interactive Resume",
       template: Path.resolve(__dirname, '../src/index.ejs'),
+      filename: 'index.html',
+      chunks: ['index'],
+    }),
+    new HtmlWebpackPlugin({
+      hash: true,
+      title: "Stéphane Petiot - PDF Resume",
+      template: Path.resolve(__dirname, '../src/pdf.ejs'),
+      filename: 'pdf/index.html',
+      chunks: ['pdf'],
     }),
   ],
   resolve: {

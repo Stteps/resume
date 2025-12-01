@@ -1,0 +1,49 @@
+@use "../abstracts/variables" as *;
+
+
+body, html {
+    margin: 0;
+    height: 100%;
+    color: $dark-color;
+    text-shadow: none;
+    font-size: 1rem;
+}
+
+#pdf-viewer {
+    width: 100%;
+    height: 100vh;
+    border: none;
+}
+
+#hidden-content {
+    position: absolute;
+    left: -9999px;  /* keep off-screen */
+    top: 0;
+    width: 800px;   /* your PDF page width */
+    height: 1123pt;
+    background: #F8F9fA;
+}
+
+h1, h2, h3 {
+    font-family: "Work Sans Bold";
+}
+
+h1, h2, h3, h4 {
+    text-transform: uppercase;
+}
+
+h3 {
+    position: relative;
+    padding-bottom: 10px;
+    font-size: 1.5rem;
+}
+
+h3::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100px;
+  height: 6px;
+  background: $primary-color;
+}

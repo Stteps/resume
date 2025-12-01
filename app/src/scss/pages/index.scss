@@ -1,7 +1,15 @@
+@use "../abstracts/variables" as *;
+
+
+#index-app .display-3 {
+  text-transform: uppercase;
+  letter-spacing: 1rem;
+}
+
 #loader {
     z-index: 1031;
     transition: opacity ease-out .2s;
-    background: #050409;
+    background: $dark-color;
 }
 
 .loader-item {
@@ -29,6 +37,34 @@
   100% {transform:scaleX(var(--s,1)) translate(0) scale(1)}
 }
 
+.external-link,
+.external-link .external-link-label {
+  transition: all linear .2s;
+  color: #F8F9fA;
+}
+
+.external-link .external-link-label {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100%);
+  white-space: nowrap;
+  opacity: 0;
+}
+
+.external-link:hover {
+  cursor: pointer;
+  opacity: 1;
+  transform: scale(1.1);
+  color: $primary-color;
+}
+
+.external-link:hover .external-link-label {
+  cursor: pointer;
+  opacity: 1;
+  transform: translateX(-50%) transform(-100%) scale(1.1);
+  color: $primary-color;
+}
 
 .skill-bar {
   width: 100px;
@@ -61,4 +97,18 @@
 
 .switch .switch-handle {
   transition: all .3s ease-out;
+}
+
+.lang-button {
+  background: transparent;
+  transition: all linear .2s;
+}
+
+.lang-button:hover {
+  background: #F8F9fA;
+}
+
+.typewrite > .wrap {
+  border-right: 0.08em solid #fff;
+  transition: border-color 0.5s ease;
 }

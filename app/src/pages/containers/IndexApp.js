@@ -9,8 +9,8 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { gsap } from "gsap";
+import Modal from 'react-bootstrap/Modal';
 
-import i18n from '../i18n';
 import { subdivideSegments } from '../utils';
 import MainPanel from '../components/MainPanel/MainPanel';
 import WorkPanel from '../components/WorkPanel/WorkPanel';
@@ -109,10 +109,11 @@ const portfolioMeshTargets = new Float32Array(maxParticleCount * 3);
 const tl = gsap.timeline();
 
 const IndexApp = () => {
-  const { t } = useTranslation(["common", "glossary", "Index/IndexApp"]);
+  const { t, i18n } = useTranslation(["common", "glossary", "Index/IndexApp"]);
 
   const [hoveredSection, setHoveredSection] = useState();
   const [selectedSection, setSelectedSection] = useState();
+  const [showPdfModal, setShowPdfModal] = useState(false);
 
   const hoveredSectionRef = useRef();
   const selectedSectionRef = useRef();
@@ -176,6 +177,9 @@ const IndexApp = () => {
     controls = new OrbitControls(camera, mountRef.current);
     controls.minDistance = 1000;
     controls.maxDistance = 3000;
+
+    const initialCameraPos = camera.position.clone();
+    const initialTarget = controls.target.clone();
 
     // Lumières
     scene.add(light);
@@ -415,7 +419,32 @@ const IndexApp = () => {
     };
 
     const resetView = () => {
-      controls.reset();
+      if(camera.position.equals(initialCameraPos))
+        return;
+
+      // Reset camera position
+      gsap.to(camera.position, {
+        x: initialCameraPos.x,
+        y: initialCameraPos.y,
+        z: initialCameraPos.z,
+        duration: 1.5,
+        ease: "power2.inOut"
+      });
+
+      // Reset orbit controls target
+      const tempTarget = controls.target.clone();
+
+      gsap.to(tempTarget, {
+        x: initialTarget.x,
+        y: initialTarget.y,
+        z: initialTarget.z,
+        duration: 1.5,
+        ease: "power2.inOut",
+        onUpdate: () => {
+          controls.target.copy(tempTarget);
+          controls.update();
+        }
+      });
     };
 
     // EVENTS
@@ -587,9 +616,10 @@ const IndexApp = () => {
     hidePanel(0);
     animate();
 
-
-    $("#loader").css("opacity", 0);
-    $("#loader").css("z-index", 0);
+    // Reset controls when opening new tab
+    // document.querySelectorAll('a').forEach(link => {
+    //   link.addEventListener('mousedown', () => { controls.reset(); });
+    // });
 
     // Clean up on unmount
     return () => {
@@ -597,9 +627,26 @@ const IndexApp = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (!i18n.isInitialized)
+      return;
+    
+    $("#loader").css("opacity", 0);
+    $("#loader").css("z-index", 0);
+  }, [i18n.isInitialized, t]);
+  
+  const resetControls = () => {
+    controls.reset();
+  };
+
   const handleLanguageToggle = (event) => {
     // $(".switch .switch-handle").css("left", event.target.id == "lang-en" ? "50%" : "0%");
     i18n.changeLanguage(event.target.id == "lang-en" ? "en" : "fr");
+  };
+
+  const handleToggleShowPdfModal = () => {
+    console.log(showPdfModal);
+    setShowPdfModal(!showPdfModal);
   };
 
   return <>
@@ -619,7 +666,7 @@ const IndexApp = () => {
               zIndex: 1,
             }}
           >
-            <MainPanel />
+            <MainPanel resetControls = { resetControls } />
           </div>
           <div
             id = { `panel-content${suffix}` }
@@ -634,10 +681,10 @@ const IndexApp = () => {
               zIndex: (hoveredSection != null) || (selectedSection != null) ? 1 : 0,
             }}
           >
-            { (hoveredSection == SECTIONS.WORK) || (selectedSection == SECTIONS.WORK) ? <WorkPanel /> : null }
-            { (hoveredSection == SECTIONS.EDUCATION) || (selectedSection == SECTIONS.EDUCATION) ? <EducationPanel /> : null }
-            { (hoveredSection == SECTIONS.SKILLS) || (selectedSection == SECTIONS.SKILLS) ? <SkillsPanel /> : null }
-            { (hoveredSection == SECTIONS.PORTFOLIO) || (selectedSection == SECTIONS.PORTFOLIO) ? <PortfolioPanel /> : null }
+            { (hoveredSection == SECTIONS.WORK) || (selectedSection == SECTIONS.WORK) ? <WorkPanel resetControls = { resetControls } /> : null }
+            { (hoveredSection == SECTIONS.EDUCATION) || (selectedSection == SECTIONS.EDUCATION) ? <EducationPanel resetControls = { resetControls } /> : null }
+            { (hoveredSection == SECTIONS.SKILLS) || (selectedSection == SECTIONS.SKILLS) ? <SkillsPanel resetControls = { resetControls } /> : null }
+            { (hoveredSection == SECTIONS.PORTFOLIO) || (selectedSection == SECTIONS.PORTFOLIO) ? <PortfolioPanel resetControls = { resetControls } /> : null }
           </div>
         </>;
       })
@@ -647,38 +694,76 @@ const IndexApp = () => {
         <div className = "loader-item"></div>
       </div>
       <div className = 'position-absolute top-0 bottom-0 start-0 end-0'>
-        <div className = "fixed-bottom d-flex justify-content-center align-items-center">
-          <button
-            type = "button"
-            id = "reset-view-button"
-            className = 'btn btn-sm btn-outline-light border-0 mx-2'
-            style = {{ zIndex: 1 }}
-          >
-            <i className = "bi bi-arrow-counterclockwise align-middle me-1"></i>
-            { t("Index/IndexApp:reset-view-label") }
-          </button>
-          <div className = "switch rounded overflow-hidden position-relative border borrder-1 border-light mx-2" style = {{ zIndex: 1 }}>
-            <span
-              className = "switch-handle position-absolute w-50 h-100 bg-light p-0"
-              style = {{ left: i18n.language == "en" ? "50%" : "0%" }}
-            >
-            </span>
-            <div className = 'position-absolute w-100 h-100'>
+        <div className = "fixed-bottom d-flex justify-content-center align-items-center text-center">
+          <div className = 'row container'>
+            <div className = 'col-4 d-flex justify-content-center align-items-center'>
               <button
                 type = "button"
-                className = 'lang-button bg-transparent border-0 w-50 h-100 p-0'
-                id = "lang-fr"
+                id = "reset-view-button"
+                className = 'btn btn-sm btn-outline-light border-0'
+                style = {{ zIndex: 1 }}
               >
-                <img className = "align-baseline h-100" src = { frIcon } style = {{ pointerEvents: "none" }} alt = "Français" title = "Français" />
-              </button>
-              <button
-                type = "button"
-                className = "lang-button bg-transparent border-0 w-50 h-100 p-0"
-                id = "lang-en"
-              >
-                <img className = "align-baseline h-100" src = { enIcon } style = {{ pointerEvents: "none" }} alt = "English" title = "English" />
+                <i className = "bi bi-arrow-counterclockwise align-middle me-1"></i>
+                { t("Index/IndexApp:reset-view-label") }
               </button>
             </div>
+            <div className = "col-4 d-flex justify-content-center align-items-center">
+              <div className = "switch rounded overflow-hidden position-relative border borrder-1 border-light" style = {{ zIndex: 1 }}>
+                <span
+                  className = "switch-handle position-absolute w-50 h-100 bg-light p-0"
+                  style = {{ left: i18n.language == "en" ? "50%" : "0%" }}
+                >
+                </span>
+                <div className = 'position-absolute w-100 h-100'>
+                  <button
+                    type = "button"
+                    className = 'lang-button border-0 w-50 h-100 p-0'
+                    id = "lang-fr"
+                  >
+                    <img className = "align-baseline h-100" src = { frIcon } style = {{ pointerEvents: "none" }} alt = "Français" title = "Français" />
+                  </button>
+                  <button
+                    type = "button"
+                    className = "lang-button border-0 w-50 h-100 p-0"
+                    id = "lang-en"
+                  >
+                    <img className = "align-baseline h-100" src = { enIcon } style = {{ pointerEvents: "none" }} alt = "English" title = "English" />
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div className = 'col-4 d-flex justify-content-center align-items-center'>
+              <button
+                type = "button"
+                id = "pdf-version-button"
+                className = 'btn btn-sm btn-outline-light border-0'
+                style = {{ zIndex: 1 }}
+                onMouseDown = { handleToggleShowPdfModal }
+              >
+                <i className = "bi bi-filetype-pdf align-middle me-1"></i>
+                { t("Index/IndexApp:view-pdf-version-label") }
+              </button>
+            </div>
+            <Modal show = { showPdfModal } onHide = { handleToggleShowPdfModal } centered>
+                <Modal.Header className = 'text-light' data-bs-theme = "dark">
+                    { t("Index/IndexApp:pdf-modal-title") }
+                    <button
+                        type = "button"
+                        className = "btn-close btn-close-white"
+                        aria-label = "Close"
+                        onClick = { handleToggleShowPdfModal }
+                    >
+                    </button>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className = "list-group border-0">
+                      <a href = "/pdf/" className = "list-group-item list-group-item-action" target = 'blank'>{ t("Index/IndexApp:full-stack-software-engineer") }<i className = "bi bi-box-arrow-up-right ms-2"></i></a>
+                      {/* <a href = "/pdf/" className = "list-group-item list-group-item-action" target = 'blank'>{ t("Index/IndexApp:frontend-engineer") }<i className = "bi bi-box-arrow-up-right ms-2"></i></a>
+                      <a href = "/pdf/" className = "list-group-item list-group-item-action" target = 'blank'>{ t("Index/IndexApp:data-science-and-ai-engineer") }<i className = "bi bi-box-arrow-up-right ms-2"></i></a>
+                      <a href = "/pdf/" className = "list-group-item list-group-item-action" target = 'blank'>{ t("Index/IndexApp:game-developer") }<i className = "bi bi-box-arrow-up-right ms-2"></i></a> */}
+                    </div>
+                </Modal.Body>
+            </Modal>
           </div>
         </div>
       </div>
