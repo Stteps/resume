@@ -17,7 +17,7 @@ jobs:
 
       - name: Build production using Docker
         run: |
-          docker build -t resume-app-build .
+          docker build -f docker/production/app/Dockerfile -t resume-app-build .
           docker create --name extract resume-app-build
           docker cp extract:/app/build ./build
           docker rm -f extract
