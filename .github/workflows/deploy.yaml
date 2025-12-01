@@ -1,4 +1,4 @@
-name: Deploy Resume App
+name: Build and Deploy to GitHub Pages
 
 on:
   push:
@@ -6,40 +6,25 @@ on:
       - main
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout code
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Checkout main branch
+        uses: actions/checkout@v4
         with:
-          persist-credentials: false
+          fetch-depth: 0
 
-      # Step 2: Build and run Docker production container
-      - name: Build and run Docker container
+      - name: Build production using Docker
         run: |
-          docker build \
-            -f docker/production/app/Dockerfile \
-            -t resume-app-prod .
-          
-          # Run container with host volume to extract build
-          docker run --rm -v $PWD/app:/app resume-app-prod
+          docker build -t resume-app-build .
+          docker create --name extract resume-app-build
+          docker cp extract:/app/build ./build
+          docker rm -f extract
 
-      # Step 3: Deploy build folder to gh-pages
       - name: Deploy to gh-pages
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          # Create or switch to gh-pages
-          git checkout --orphan gh-pages
-          git rm -rf .
-
-          # Copy build files
-          cp -r app/build/* .
-
-          # Commit and push
-          git add .
-          git commit -m "Deploy from GitHub Actions [skip ci]" || echo "No changes to commit"
-          git push -f origin gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build
+          publish_branch: gh-pages
