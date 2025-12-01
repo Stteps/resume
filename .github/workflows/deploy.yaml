@@ -19,8 +19,8 @@ jobs:
       # Step 2: Build and run Docker production container
       - name: Build and run Docker container
         run: |
-          docker build \
-            -f docker/production/app/Dockerfile \
+          cd docker/production && docker build \
+            -f app/Dockerfile \
             -t resume-app-prod ../../
           
           # Run container with host volume to extract build
