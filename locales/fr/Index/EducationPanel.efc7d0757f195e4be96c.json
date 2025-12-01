@@ -1,0 +1,21 @@
+{
+    "title": "Formation",
+    "first-item": {
+        "title": "Ingénieur Supélec | CentraleSupélec",
+        "location": "Gif-sur-Yvette, France / Metz, France",
+        "text1": "Majeure Systèmes Interactifs & Robotique",
+        "text2": "Alternance à Thales DMS - Sophia Antipolis, France"
+    },
+    "second-item": {
+        "title": "Diplôme Universitaire de Technologie (DUT) | IUT Nice Côte D'Azur",
+        "location": "Nice, France",
+        "text1": "Génie Electrique & Informatique Industrielle",
+        "text2": "Stage de fin d'études à STMicroelectronics - Sophia Antipolis, France"
+    },
+    "third-item": {
+        "title": "Baccalauréat Général | Lycée Auguste Renoir",
+        "location": "Cagnes-sur-Mer, France",
+        "text1": "Filière Scientifique, option Informatique & Science du Numérique",
+        "text2": "Mention Assez Bien"
+    }
+}
