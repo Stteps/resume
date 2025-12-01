@@ -35,11 +35,11 @@ $(() => {
         const ratio = pageWidth / canvas.width;
         const imgHeight = canvas.height * ratio;
 
+        window.close();
+
         pdf.addImage(img, "PNG", 0, 0, pageWidth, imgHeight, "", "FAST");
         pdf.setProperties({ title: "Stéphane PETIOT - Full-Stack Software Engineer" });
-
         pdf.output('pdfobjectnewwindow', { filename: "Stephane_PETIOT_Full_Stack_Software_Engineer.pdf" });
-        window.close();
     }
 
     generatePDF();

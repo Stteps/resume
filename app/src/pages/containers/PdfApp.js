@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
-import selfPicture from "~/assets/images/_self.jpg";
+import selfPicture from "~/assets/images/self-pdf.jpg";
 import frIcon from "~/assets/icons/fr.svg";
 import enIcon from "~/assets/icons/en.svg";
 import esIcon from "~/assets/icons/es.svg";

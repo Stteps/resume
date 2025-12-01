@@ -1,0 +1,45 @@
+name: Deploy Resume App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout code
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+
+      # Step 2: Build and run Docker production container
+      - name: Build and run Docker container
+        run: |
+          docker build \
+            -f docker/production/app/Dockerfile \
+            -t resume-app-prod ../../
+          
+          # Run container with host volume to extract build
+          docker run --rm -v $PWD/app:/app resume-app-prod
+
+      # Step 3: Deploy build folder to gh-pages
+      - name: Deploy to gh-pages
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Create or switch to gh-pages
+          git checkout --orphan gh-pages
+          git rm -rf .
+
+          # Copy build files
+          cp -r app/build/* .
+
+          # Commit and push
+          git add .
+          git commit -m "Deploy from GitHub Actions [skip ci]" || echo "No changes to commit"
+          git push -f origin gh-pages

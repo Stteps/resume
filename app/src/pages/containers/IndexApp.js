@@ -757,10 +757,7 @@ const IndexApp = () => {
                 </Modal.Header>
                 <Modal.Body>
                     <div className = "list-group border-0">
-                      <a href = "/pdf/" className = "list-group-item list-group-item-action" target = 'blank'>{ t("Index/IndexApp:full-stack-software-engineer") }<i className = "bi bi-box-arrow-up-right ms-2"></i></a>
-                      {/* <a href = "/pdf/" className = "list-group-item list-group-item-action" target = 'blank'>{ t("Index/IndexApp:frontend-engineer") }<i className = "bi bi-box-arrow-up-right ms-2"></i></a>
-                      <a href = "/pdf/" className = "list-group-item list-group-item-action" target = 'blank'>{ t("Index/IndexApp:data-science-and-ai-engineer") }<i className = "bi bi-box-arrow-up-right ms-2"></i></a>
-                      <a href = "/pdf/" className = "list-group-item list-group-item-action" target = 'blank'>{ t("Index/IndexApp:game-developer") }<i className = "bi bi-box-arrow-up-right ms-2"></i></a> */}
+                      <a href = { `${window.location.href}pdf/` } className = "list-group-item list-group-item-action" target = 'blank'>{ t("Index/IndexApp:full-stack-software-engineer") }<i className = "bi bi-box-arrow-up-right ms-2"></i></a>
                     </div>
                 </Modal.Body>
             </Modal>
