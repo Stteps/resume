@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
 
-import selfPicture from "~/assets/images/self.jpg";
+import selfPicture from "~/assets/images/self.jpeg";
 
 
 const MainPanel = (props) => {
